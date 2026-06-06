@@ -15,7 +15,6 @@ class Logger {
 public:
     static Logger& getInstance();
 
-    // Delete copy constructor and assignment operator for Singleton
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 

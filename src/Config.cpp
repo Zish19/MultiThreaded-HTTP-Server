@@ -12,9 +12,6 @@ const ServerConfig& Config::getServerConfig() const {
     return m_config;
 }
 
-// A highly simplified JSON extraction function (assumes flat JSON structure).
-// Interview note: Writing a full JSON parser is a separate project. 
-// This demonstrates manual string parsing for basic needs without dependencies.
 std::string Config::extractJsonValue(const std::string& json, const std::string& key) {
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey);
@@ -23,19 +20,16 @@ std::string Config::extractJsonValue(const std::string& json, const std::string&
     std::size_t colonPos = json.find(':', keyPos);
     if (colonPos == std::string::npos) return "";
 
-    // Find the start of the value
     std::size_t valueStart = json.find_first_not_of(" \t\n\r", colonPos + 1);
     if (valueStart == std::string::npos) return "";
 
     std::string result;
     if (json[valueStart] == '\"') {
-        // It's a string value
         std::size_t valueEnd = json.find('\"', valueStart + 1);
         if (valueEnd != std::string::npos) {
             result = json.substr(valueStart + 1, valueEnd - valueStart - 1);
         }
     } else {
-        // It's a boolean or number
         std::size_t valueEnd = json.find_first_of(", \t\n\r}", valueStart);
         if (valueEnd != std::string::npos) {
             result = json.substr(valueStart, valueEnd - valueStart);

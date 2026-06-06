@@ -17,8 +17,6 @@ public:
     Config(const Config&) = delete;
     Config& operator=(const Config&) = delete;
 
-    // Parses a simple JSON config file. 
-    // Returns true if successful, false otherwise (falling back to defaults).
     bool loadFromFile(const std::string& filepath);
 
     const ServerConfig& getServerConfig() const;
@@ -29,6 +27,5 @@ private:
 
     ServerConfig m_config;
     
-    // Helper for minimalistic JSON parsing
     std::string extractJsonValue(const std::string& json, const std::string& key);
 };
