@@ -1,28 +1,71 @@
 #include "Logger.h"
 #include "Metrics.h"
 #include "Config.h"
-#include <thread>
-#include <chrono>
+#include "ThreadPool.h"
+#include "TcpServer.h"
+#include <iostream>
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <winsock2.h>
+#endif
 
 int main() {
+#if defined(_WIN32) || defined(_WIN64)
+    WSADATA wsaData;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        std::cerr << "WSAStartup failed.\n";
+        return 1;
+    }
+#endif
+
     Logger::getInstance().info("Starting Server Initialization...");
     
+    std::uint16_t port = 8080;
+    std::size_t threads = 4;
+    
     if (Config::getInstance().loadFromFile("config.json")) {
-        Logger::getInstance().info("Port: " + std::to_string(Config::getInstance().getServerConfig().port));
-        Logger::getInstance().info("Threads: " + std::to_string(Config::getInstance().getServerConfig().threadCount));
-    } else {
-        Logger::getInstance().warn("Using default port: " + std::to_string(Config::getInstance().getServerConfig().port));
+        port = Config::getInstance().getServerConfig().port;
+        threads = Config::getInstance().getServerConfig().threadCount;
     }
 
-    Metrics::getInstance().incrementRequests();
-    Metrics::getInstance().incrementActiveConnections();
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    
-    Logger::getInstance().info("Current Metrics: \n" + Metrics::getInstance().toJSON());
+    try {
+        Router router;
+        
+        router.get("/", [](const HttpRequest&) {
+            return HttpResponse::ok("Welcome to My C++ Server");
+        });
+        
+        router.get("/health", [](const HttpRequest&) {
+            return HttpResponse::ok("OK");
+        });
+        
+        router.get("/about", [](const HttpRequest&) {
+            return HttpResponse::ok("Built with C++20");
+        });
+        
+        router.get("/metrics", [](const HttpRequest&) {
+            HttpResponse res = HttpResponse::ok(Metrics::getInstance().toJSON());
+            res.addHeader("Content-Type", "application/json");
+            return res;
+        });
 
-    Metrics::getInstance().decrementActiveConnections();
+        ThreadPool pool(threads);
+        TcpServer server(pool, router, port);
+        
+        server.start();
+        Logger::getInstance().info("Server is running on port " + std::to_string(port) + ". Press Enter to stop.");
+        
+        std::cin.get();
+        
+        Logger::getInstance().info("Stopping server...");
+        server.stop();
+    } catch (const std::exception& e) {
+        Logger::getInstance().error(std::string("Fatal error: ") + e.what());
+    }
     
-    Logger::getInstance().info("Phase 1 initialization complete.");
+#if defined(_WIN32) || defined(_WIN64)
+    WSACleanup();
+#endif
+
     return 0;
 }

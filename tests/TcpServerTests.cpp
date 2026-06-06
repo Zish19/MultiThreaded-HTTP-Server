@@ -2,6 +2,7 @@
 #include "WSAContext.h"
 #include "ThreadPool.h"
 #include "Socket.h"
+#include "Router.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
@@ -17,8 +18,9 @@
 #endif
 
 void testTcpServerStartupAndShutdown() {
+    Router router;
     ThreadPool pool(2);
-    TcpServer server(pool, 8082);
+    TcpServer server(pool, router, 8082);
     
     server.start();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -28,8 +30,9 @@ void testTcpServerStartupAndShutdown() {
 }
 
 void testTcpServerClientInteraction() {
+    Router router;
     ThreadPool pool(2);
-    TcpServer server(pool, 8083);
+    TcpServer server(pool, router, 8083);
     server.start();
     
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -59,11 +62,11 @@ void testTcpServerClientInteraction() {
     assert(result == 0);
 #endif
     
-    std::string testMsg = "hello";
+    std::string testMsg = "MALFORMED HTTP REQUEST\r\n\r\n";
     client.send(testMsg);
     
-    std::string response = client.receive();
-    assert(response == "Server received: hello");
+    std::string response = client.receive(4096);
+    assert(response.find("400 Bad Request") != std::string::npos);
     
     client.close();
     

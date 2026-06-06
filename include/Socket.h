@@ -42,6 +42,7 @@ public:
     // I/O operations
     std::size_t send(const void* data, std::size_t size);
     std::size_t send(const std::string& data);
+    std::size_t sendAll(const std::string& data);
     std::string receive(std::size_t maxBytes = 4096);
     
     void close() noexcept;

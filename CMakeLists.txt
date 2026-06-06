@@ -25,6 +25,11 @@ set(SOURCES
     src/WSAContext.cpp
     src/Socket.cpp
     src/TcpServer.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+    src/Router.cpp
 )
 
 add_executable(HttpServer ${SOURCES})
@@ -65,6 +70,11 @@ set(TCP_SERVER_TEST_SOURCES
     src/ThreadPool.cpp
     src/Logger.cpp
     src/Metrics.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+    src/Router.cpp
 )
 add_executable(TcpServerTests ${TCP_SERVER_TEST_SOURCES})
 
@@ -97,3 +107,33 @@ set(HTTP_PARSER_TEST_SOURCES
 )
 add_executable(HttpParserTests ${HTTP_PARSER_TEST_SOURCES})
 target_link_libraries(HttpParserTests PRIVATE Threads::Threads)
+
+set(INTEGRATION_TEST_SOURCES
+    tests/IntegrationTests.cpp
+    src/TcpServer.cpp
+    src/Socket.cpp
+    src/ThreadPool.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+    src/Router.cpp
+)
+add_executable(IntegrationTests ${INTEGRATION_TEST_SOURCES})
+if(WIN32)
+    target_link_libraries(IntegrationTests PRIVATE ws2_32 Threads::Threads)
+else()
+    target_link_libraries(IntegrationTests PRIVATE Threads::Threads)
+endif()
+
+set(ROUTER_TEST_SOURCES
+    tests/RouterTests.cpp
+    src/Router.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+)
+add_executable(RouterTests ${ROUTER_TEST_SOURCES})
+target_link_libraries(RouterTests PRIVATE Threads::Threads)

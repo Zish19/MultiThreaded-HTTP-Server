@@ -10,6 +10,57 @@ std::string_view HttpParser::trimWhitespace(std::string_view str) {
     return str.substr(start, end - start + 1);
 }
 
+std::size_t HttpParser::extractExpectedBodySize(std::string_view headerSection) {
+    std::size_t pos = 0;
+    while (pos < headerSection.size()) {
+        std::size_t nextLine = headerSection.find('\n', pos);
+        std::string_view line;
+        if (nextLine == std::string_view::npos) {
+            line = headerSection.substr(pos);
+            pos = headerSection.size();
+        } else {
+            line = headerSection.substr(pos, nextLine - pos);
+            pos = nextLine + 1;
+        }
+
+        if (!line.empty() && line.back() == '\r') {
+            line.remove_suffix(1);
+        }
+
+        auto colonPos = line.find(':');
+        if (colonPos != std::string_view::npos) {
+            std::string_view key = trimWhitespace(line.substr(0, colonPos));
+            
+            if (key.size() == 14) {
+                bool match = true;
+                const char* expected = "content-length";
+                for (size_t i = 0; i < 14; ++i) {
+                    if (std::tolower(static_cast<unsigned char>(key[i])) != expected[i]) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    std::string_view val = trimWhitespace(line.substr(colonPos + 1));
+                    if (val.empty() || val.find_first_not_of("0123456789") != std::string_view::npos) {
+                        throw HttpParseException("Malformed request: Invalid Content-Length format");
+                    }
+                    try {
+                        std::size_t cl = std::stoull(std::string(val));
+                        if (cl > MAX_BODY_SIZE) {
+                            throw HttpParseException("Request rejected: Body exceeds maximum size limit");
+                        }
+                        return cl;
+                    } catch (...) {
+                        throw HttpParseException("Malformed request: Content-Length value out of range");
+                    }
+                }
+            }
+        }
+    }
+    return 0;
+}
+
 HttpRequest HttpParser::parse(std::string_view rawRequest) {
     if (rawRequest.empty()) {
         throw HttpParseException("Malformed request: Empty request");
@@ -160,31 +211,14 @@ HttpRequest HttpParser::parse(std::string_view rawRequest) {
     }
 
     // 4. Body Extraction & Content-Length Validation
-    auto lenOpt = req.getHeader("content-length");
+    bool hasContentLength = req.hasHeader("content-length");
     std::size_t contentLength = 0;
 
-    if (lenOpt) {
-        const std::string& lenStr = *lenOpt;
-        
-        // Strict string to integer validation
-        if (lenStr.empty() || lenStr.find_first_not_of("0123456789") != std::string::npos) {
-            throw HttpParseException("Malformed request: Invalid Content-Length format");
-        }
-
-        try {
-            contentLength = std::stoull(lenStr);
-        } catch (...) {
-            throw HttpParseException("Malformed request: Content-Length value out of range");
-        }
-
-        if (contentLength > MAX_BODY_SIZE) {
-            throw HttpParseException("Request rejected: Body exceeds maximum size limit");
-        }
-
+    if (hasContentLength) {
+        contentLength = extractExpectedBodySize(headerSection);
         if (bodySection.size() < contentLength) {
             throw HttpParseException("Malformed request: Body truncated (size < Content-Length)");
         }
-        
         // We take exactly contentLength bytes
         req.setBody(std::string(bodySection.substr(0, contentLength)));
     } else {

@@ -21,6 +21,13 @@ public:
      */
     static HttpRequest parse(std::string_view rawRequest);
 
+    /**
+     * Inspects a raw HTTP request header section to determine the expected body size.
+     * Returns 0 if no Content-Length is found.
+     * Throws HttpParseException if Content-Length is malformed or exceeds MAX_BODY_SIZE.
+     */
+    static std::size_t extractExpectedBodySize(std::string_view headerSection);
+
 private:
     static std::string_view trimWhitespace(std::string_view str);
 };

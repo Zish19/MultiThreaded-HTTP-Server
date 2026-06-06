@@ -117,6 +117,18 @@ std::size_t Socket::send(const std::string& data) {
     return send(data.data(), data.size());
 }
 
+std::size_t Socket::sendAll(const std::string& data) {
+    std::size_t totalSent = 0;
+    while (totalSent < data.size()) {
+        std::size_t sent = send(data.data() + totalSent, data.size() - totalSent);
+        if (sent == 0) {
+            throw std::runtime_error("Socket disconnected during sendAll");
+        }
+        totalSent += sent;
+    }
+    return totalSent;
+}
+
 std::string Socket::receive(std::size_t maxBytes) {
     std::vector<char> buffer(maxBytes);
     int bytesReceived = ::recv(m_handle, buffer.data(), static_cast<int>(maxBytes), 0);

@@ -1,6 +1,9 @@
 #include "TcpServer.h"
 #include "Logger.h"
 #include "Metrics.h"
+#include "HttpParser.h"
+#include "HttpParseException.h"
+#include "HttpResponse.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -15,8 +18,8 @@ public:
     }
 };
 
-TcpServer::TcpServer(ThreadPool& threadPool, std::uint16_t port)
-    : m_threadPool(threadPool), m_port(port) {
+TcpServer::TcpServer(ThreadPool& threadPool, const Router& router, std::uint16_t port)
+    : m_threadPool(threadPool), m_router(router), m_port(port) {
 }
 
 TcpServer::~TcpServer() noexcept {
@@ -75,21 +78,76 @@ void TcpServer::handleClient(Socket client) {
     Logger::getInstance().info("Client connected");
 
     try {
-        // Simple Phase 3 interaction: Receive, Log, Respond
-        std::string receivedData = client.receive();
-        Metrics::getInstance().addBytesReceived(receivedData.size());
-        
-        Logger::getInstance().info("Bytes received: " + std::to_string(receivedData.size()));
+        std::string rawRequest;
+        bool headersComplete = false;
+        std::size_t expectedTotalSize = 0;
 
-        std::string response = "Server received: " + receivedData;
-        std::size_t sentBytes = client.send(response);
-        Metrics::getInstance().addBytesSent(sentBytes);
-        
-        Logger::getInstance().info("Bytes sent: " + std::to_string(sentBytes));
+        // Ingestion Loop
+        while (true) {
+            std::string chunk = client.receive(4096);
+            if (chunk.empty()) {
+                break; // Client closed connection
+            }
+            rawRequest += chunk;
 
+            if (!headersComplete) {
+                std::size_t separatorLen = 4;
+                std::size_t headerEnd = rawRequest.find("\r\n\r\n");
+                if (headerEnd == std::string::npos) {
+                    headerEnd = rawRequest.find("\n\n");
+                    separatorLen = 2;
+                }
+
+                if (headerEnd != std::string::npos) {
+                    headersComplete = true;
+                    std::size_t bodySize = HttpParser::extractExpectedBodySize(rawRequest.substr(0, headerEnd));
+                    expectedTotalSize = headerEnd + separatorLen + bodySize;
+                }
+            }
+
+            if (headersComplete && rawRequest.size() >= expectedTotalSize) {
+                break; // Full request assembled
+            }
+        }
+
+        if (!rawRequest.empty()) {
+            Metrics::getInstance().addBytesReceived(rawRequest.size());
+            Logger::getInstance().info("Request received");
+
+            HttpRequest req = HttpParser::parse(rawRequest);
+            Metrics::getInstance().incrementRequests();
+
+            HttpResponse res = m_router.dispatch(req);
+
+            std::string resStr = res.toString();
+            std::size_t sentBytes = client.sendAll(resStr);
+            Metrics::getInstance().addBytesSent(sentBytes);
+            Logger::getInstance().info("Response sent");
+        }
+    } catch (const HttpParseException& e) {
+        Logger::getInstance().error(std::string("Parse error: ") + e.what());
+        HttpResponse res = HttpResponse::badRequest();
+        std::string resStr = res.toString();
+        
+        try {
+            std::size_t sentBytes = client.sendAll(resStr);
+            Metrics::getInstance().addBytesSent(sentBytes);
+        } catch (...) {
+            // Ignore send failures on error response
+        }
     } catch (const std::exception& e) {
-        Logger::getInstance().error(std::string("Client error: ") + e.what());
+        Logger::getInstance().error(std::string("Server error: ") + e.what());
+        HttpResponse res = HttpResponse::internalServerError();
+        std::string resStr = res.toString();
+        
+        try {
+            std::size_t sentBytes = client.sendAll(resStr);
+            Metrics::getInstance().addBytesSent(sentBytes);
+        } catch (...) {
+            // Ignore send failures on error response
+        }
     }
 
+    client.close();
     Logger::getInstance().info("Client disconnected");
 }
