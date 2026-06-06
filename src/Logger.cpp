@@ -9,7 +9,7 @@ Logger& Logger::getInstance() {
     return instance;
 }
 
-std::string Logger::levelToString(LogLevel level) {
+std::string Logger::levelToString(LogLevel level) const {
     switch (level) {
         case LogLevel::INFO: return "INFO";
         case LogLevel::WARNING: return "WARN";
@@ -19,7 +19,7 @@ std::string Logger::levelToString(LogLevel level) {
     }
 }
 
-std::string Logger::getCurrentTimestamp() {
+std::string Logger::getCurrentTimestamp() const {
     auto now = std::chrono::system_clock::now();
     auto in_time_t = std::chrono::system_clock::to_time_t(now);
     
@@ -34,14 +34,14 @@ std::string Logger::getCurrentTimestamp() {
     return ss.str();
 }
 
-void Logger::log(LogLevel level, const std::string& message) {
+void Logger::log(LogLevel level, const std::string& message) const {
     std::lock_guard<std::mutex> lock(m_mutex);
     std::cout << "[" << getCurrentTimestamp() << "] " 
               << "[" << levelToString(level) << "] " 
               << message << std::endl;
 }
 
-void Logger::info(const std::string& message) { log(LogLevel::INFO, message); }
-void Logger::warn(const std::string& message) { log(LogLevel::WARNING, message); }
-void Logger::error(const std::string& message) { log(LogLevel::ERROR, message); }
-void Logger::debug(const std::string& message) { log(LogLevel::DEBUG, message); }
+void Logger::info(const std::string& message) const { log(LogLevel::INFO, message); }
+void Logger::warn(const std::string& message) const { log(LogLevel::WARNING, message); }
+void Logger::error(const std::string& message) const { log(LogLevel::ERROR, message); }
+void Logger::debug(const std::string& message) const { log(LogLevel::DEBUG, message); }

@@ -16,9 +16,16 @@ public:
     void incrementActiveConnections();
     void decrementActiveConnections();
 
-    std::uint64_t getTotalRequests() const;
-    std::int32_t getActiveConnections() const;
-    double getUptimeSeconds() const;
+    void incrementTotalConnections();
+    void addBytesReceived(std::uint64_t bytes);
+    void addBytesSent(std::uint64_t bytes);
+
+    std::uint64_t getTotalRequests() const noexcept;
+    std::int32_t getActiveConnections() const noexcept;
+    std::uint64_t getTotalConnections() const noexcept;
+    std::uint64_t getBytesReceived() const noexcept;
+    std::uint64_t getBytesSent() const noexcept;
+    double getUptimeSeconds() const noexcept;
     
     std::string toJSON() const;
 
@@ -28,5 +35,8 @@ private:
 
     std::atomic<std::uint64_t> m_totalRequests{0};
     std::atomic<std::int32_t> m_activeConnections{0};
+    std::atomic<std::uint64_t> m_totalConnections{0};
+    std::atomic<std::uint64_t> m_bytesReceived{0};
+    std::atomic<std::uint64_t> m_bytesSent{0};
     std::chrono::time_point<std::chrono::steady_clock> m_startTime;
 };

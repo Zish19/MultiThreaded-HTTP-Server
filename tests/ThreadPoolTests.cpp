@@ -28,7 +28,7 @@ void testMultipleTasks() {
     
     for (int i = 0; i < taskCount; ++i) {
         pool.enqueue([&counter]() {
-            counter++;
+            counter.fetch_add(1, std::memory_order_relaxed);
         });
     }
     
@@ -50,7 +50,7 @@ void testConcurrentSubmission() {
         submitterThreads.emplace_back([&pool, &counter, tasksPerSubmitter]() {
             for (int j = 0; j < tasksPerSubmitter; ++j) {
                 pool.enqueue([&counter]() {
-                    counter++;
+                    counter.fetch_add(1, std::memory_order_relaxed);
                 });
             }
         });
@@ -74,7 +74,7 @@ void testGracefulShutdown() {
         for (int i = 0; i < taskCount; ++i) {
             pool.enqueue([&counter]() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(2)); 
-                counter++;
+                counter.fetch_add(1, std::memory_order_relaxed);
             });
         }
     }

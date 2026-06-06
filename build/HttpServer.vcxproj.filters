@@ -16,6 +16,15 @@
     <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\ThreadPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\WSAContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Socket.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\TcpServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\CMakeLists.txt" />

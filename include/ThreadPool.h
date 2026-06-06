@@ -21,15 +21,18 @@ public:
     void enqueue(F&& task) {
         {
             std::unique_lock<std::mutex> lock(m_queueMutex);
+            if (m_stop.load(std::memory_order_acquire)) {
+                throw std::runtime_error("enqueue on stopped ThreadPool");
+            }
             m_tasks.emplace(std::forward<F>(task));
             m_pendingTasks.fetch_add(1, std::memory_order_relaxed);
         }
         m_condition.notify_one();
     }
 
-    std::size_t pendingTasks() const;
-    std::size_t completedTasks() const;
-    std::size_t workerCount() const;
+    std::size_t pendingTasks() const noexcept;
+    std::size_t completedTasks() const noexcept;
+    std::size_t workerCount() const noexcept;
 
 private:
     void workerLoop();
@@ -43,6 +46,13 @@ private:
 
     std::atomic<bool> m_stop{false};
 
-    std::atomic<std::size_t> m_pendingTasks{0};
-    std::atomic<std::size_t> m_completedTasks{0};
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable: 4324)
+#endif
+    alignas(64) std::atomic<std::size_t> m_pendingTasks{0};
+    alignas(64) std::atomic<std::size_t> m_completedTasks{0};
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 };

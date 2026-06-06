@@ -3,3 +3,6 @@ C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Logger.cpp;C:\Users\
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Metrics.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\Metrics.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Config.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\Config.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\ThreadPool.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\ThreadPool.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\WSAContext.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\WSAContext.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Socket.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\Socket.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\TcpServer.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Debug\TcpServer.obj

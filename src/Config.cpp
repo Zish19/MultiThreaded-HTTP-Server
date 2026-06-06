@@ -8,7 +8,7 @@ Config& Config::getInstance() {
     return instance;
 }
 
-const ServerConfig& Config::getServerConfig() const {
+const ServerConfig& Config::getServerConfig() const noexcept {
     return m_config;
 }
 

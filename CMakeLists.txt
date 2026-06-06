@@ -22,6 +22,9 @@ set(SOURCES
     src/Metrics.cpp
     src/Config.cpp
     src/ThreadPool.cpp
+    src/WSAContext.cpp
+    src/Socket.cpp
+    src/TcpServer.cpp
 )
 
 add_executable(HttpServer ${SOURCES})
@@ -40,3 +43,33 @@ set(TEST_SOURCES
 )
 add_executable(HttpServerTests ${TEST_SOURCES})
 target_link_libraries(HttpServerTests PRIVATE Threads::Threads)
+
+set(SOCKET_TEST_SOURCES
+    tests/SocketTests.cpp
+    src/Socket.cpp
+    src/WSAContext.cpp
+)
+add_executable(SocketTests ${SOCKET_TEST_SOURCES})
+
+if(WIN32)
+    target_link_libraries(SocketTests PRIVATE ws2_32 Threads::Threads)
+else()
+    target_link_libraries(SocketTests PRIVATE Threads::Threads)
+endif()
+
+set(TCP_SERVER_TEST_SOURCES
+    tests/TcpServerTests.cpp
+    src/TcpServer.cpp
+    src/Socket.cpp
+    src/WSAContext.cpp
+    src/ThreadPool.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+)
+add_executable(TcpServerTests ${TCP_SERVER_TEST_SOURCES})
+
+if(WIN32)
+    target_link_libraries(TcpServerTests PRIVATE ws2_32 Threads::Threads)
+else()
+    target_link_libraries(TcpServerTests PRIVATE Threads::Threads)
+endif()

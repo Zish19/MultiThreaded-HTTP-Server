@@ -377,6 +377,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Metrics.cpp" />
     <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Config.cpp" />
     <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\ThreadPool.cpp" />
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\WSAContext.cpp" />
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Socket.cpp" />
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\TcpServer.cpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

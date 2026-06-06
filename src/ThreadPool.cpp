@@ -56,14 +56,14 @@ void ThreadPool::workerLoop() {
     }
 }
 
-std::size_t ThreadPool::pendingTasks() const {
+std::size_t ThreadPool::pendingTasks() const noexcept {
     return m_pendingTasks.load(std::memory_order_relaxed);
 }
 
-std::size_t ThreadPool::completedTasks() const {
+std::size_t ThreadPool::completedTasks() const noexcept {
     return m_completedTasks.load(std::memory_order_relaxed);
 }
 
-std::size_t ThreadPool::workerCount() const {
+std::size_t ThreadPool::workerCount() const noexcept {
     return m_workers.size();
 }

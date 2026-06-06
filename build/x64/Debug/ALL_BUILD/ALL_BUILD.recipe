@@ -11,6 +11,12 @@
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Debug\HttpServerTests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Debug\SocketTests.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Debug\TcpServerTests.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\x64\Debug\ALL_BUILD</FullPath>
     </ProjectOutput>
   </ProjectOutputs>

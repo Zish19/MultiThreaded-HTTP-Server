@@ -18,19 +18,19 @@ public:
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    void log(LogLevel level, const std::string& message);
+    void log(LogLevel level, const std::string& message) const;
     
-    void info(const std::string& message);
-    void warn(const std::string& message);
-    void error(const std::string& message);
-    void debug(const std::string& message);
+    void info(const std::string& message) const;
+    void warn(const std::string& message) const;
+    void error(const std::string& message) const;
+    void debug(const std::string& message) const;
 
 private:
     Logger() = default;
     ~Logger() = default;
 
-    std::string levelToString(LogLevel level);
-    std::string getCurrentTimestamp();
+    std::string levelToString(LogLevel level) const;
+    std::string getCurrentTimestamp() const;
 
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;
 };

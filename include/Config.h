@@ -19,7 +19,7 @@ public:
 
     bool loadFromFile(const std::string& filepath);
 
-    const ServerConfig& getServerConfig() const;
+    const ServerConfig& getServerConfig() const noexcept;
 
 private:
     Config() = default;
