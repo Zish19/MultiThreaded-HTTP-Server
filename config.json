@@ -1,0 +1,6 @@
+{
+  "port": 8080,
+  "threadCount": 8,
+  "publicDirectory": "./public",
+  "keepAlive": true
+}
