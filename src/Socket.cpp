@@ -44,6 +44,38 @@ void Socket::enableReuseAddress() {
     }
 }
 
+void Socket::setReceiveTimeout(int milliseconds) {
+#if defined(_WIN32) || defined(_WIN64)
+    DWORD timeout = milliseconds;
+    if (setsockopt(m_handle, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout)) < 0) {
+        throw std::runtime_error("Failed to set receive timeout");
+    }
+#else
+    struct timeval tv;
+    tv.tv_sec = milliseconds / 1000;
+    tv.tv_usec = (milliseconds % 1000) * 1000;
+    if (setsockopt(m_handle, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv), sizeof(tv)) < 0) {
+        throw std::runtime_error("Failed to set receive timeout");
+    }
+#endif
+}
+
+void Socket::setSendTimeout(int milliseconds) {
+#if defined(_WIN32) || defined(_WIN64)
+    DWORD timeout = milliseconds;
+    if (setsockopt(m_handle, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&timeout), sizeof(timeout)) < 0) {
+        throw std::runtime_error("Failed to set send timeout");
+    }
+#else
+    struct timeval tv;
+    tv.tv_sec = milliseconds / 1000;
+    tv.tv_usec = (milliseconds % 1000) * 1000;
+    if (setsockopt(m_handle, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&tv), sizeof(tv)) < 0) {
+        throw std::runtime_error("Failed to set send timeout");
+    }
+#endif
+}
+
 void Socket::bind(std::uint16_t port) {
     sockaddr_in addr{};
     addr.sin_family = AF_INET;

@@ -73,3 +73,27 @@ if(WIN32)
 else()
     target_link_libraries(TcpServerTests PRIVATE Threads::Threads)
 endif()
+
+set(HTTP_REQUEST_TEST_SOURCES
+    tests/HttpRequestTests.cpp
+    src/HttpRequest.cpp
+    src/HttpMethod.cpp
+)
+add_executable(HttpRequestTests ${HTTP_REQUEST_TEST_SOURCES})
+target_link_libraries(HttpRequestTests PRIVATE Threads::Threads)
+
+set(HTTP_RESPONSE_TEST_SOURCES
+    tests/HttpResponseTests.cpp
+    src/HttpResponse.cpp
+)
+add_executable(HttpResponseTests ${HTTP_RESPONSE_TEST_SOURCES})
+target_link_libraries(HttpResponseTests PRIVATE Threads::Threads)
+
+set(HTTP_PARSER_TEST_SOURCES
+    tests/HttpParserTests.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpMethod.cpp
+)
+add_executable(HttpParserTests ${HTTP_PARSER_TEST_SOURCES})
+target_link_libraries(HttpParserTests PRIVATE Threads::Threads)

@@ -2,5 +2,8 @@ C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/HttpSer
 C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/HttpServerTests.dir
 C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/SocketTests.dir
 C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/TcpServerTests.dir
+C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/HttpRequestTests.dir
+C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/HttpResponseTests.dir
+C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/HttpParserTests.dir
 C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/CMakeFiles/ZERO_CHECK.dir

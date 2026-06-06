@@ -4,6 +4,17 @@
 #include <stdexcept>
 #include <iostream>
 
+class ActiveConnectionGuard {
+public:
+    ActiveConnectionGuard() {
+        Metrics::getInstance().incrementTotalConnections();
+        Metrics::getInstance().incrementActiveConnections();
+    }
+    ~ActiveConnectionGuard() {
+        Metrics::getInstance().decrementActiveConnections();
+    }
+};
+
 TcpServer::TcpServer(ThreadPool& threadPool, std::uint16_t port)
     : m_threadPool(threadPool), m_port(port) {
 }
@@ -38,28 +49,29 @@ void TcpServer::acceptLoop() {
     while (!m_stop.load(std::memory_order_acquire)) {
         try {
             Socket client = m_serverSocket.accept();
+            client.setReceiveTimeout(5000); // 5 seconds timeout
+            client.setSendTimeout(5000);    // 5 seconds timeout
             
             if (m_stop.load(std::memory_order_acquire)) {
                 break;
             }
 
-            auto sharedClient = std::make_shared<Socket>(std::move(client));
             m_threadPool.enqueue(
-                [this, sharedClient]() {
-                    handleClient(std::move(*sharedClient));
+                [this, client = std::move(client)]() mutable {
+                    handleClient(std::move(client));
                 }
             );
         } catch (const std::exception& e) {
             if (!m_stop.load(std::memory_order_acquire)) {
                 Logger::getInstance().error(std::string("Accept error: ") + e.what());
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     }
 }
 
 void TcpServer::handleClient(Socket client) {
-    Metrics::getInstance().incrementTotalConnections();
-    Metrics::getInstance().incrementActiveConnections();
+    ActiveConnectionGuard connectionGuard;
     Logger::getInstance().info("Client connected");
 
     try {
@@ -80,5 +92,4 @@ void TcpServer::handleClient(Socket client) {
     }
 
     Logger::getInstance().info("Client disconnected");
-    Metrics::getInstance().decrementActiveConnections();
 }

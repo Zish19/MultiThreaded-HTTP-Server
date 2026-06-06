@@ -8,6 +8,41 @@
 #include <functional>
 #include <atomic>
 #include <cstddef>
+#include <memory>
+#include <utility>
+#include <stdexcept>
+
+class MoveOnlyTask {
+    struct Concept {
+        virtual ~Concept() = default;
+        virtual void invoke() = 0;
+    };
+
+    template <typename F>
+    struct Model : Concept {
+        F f;
+        Model(F&& f) : f(std::move(f)) {}
+        void invoke() override { f(); }
+    };
+
+    std::unique_ptr<Concept> m_ptr;
+
+public:
+    MoveOnlyTask() = default;
+
+    template <typename F>
+    MoveOnlyTask(F&& f) : m_ptr(std::make_unique<Model<std::decay_t<F>>>(std::forward<F>(f))) {}
+
+    MoveOnlyTask(MoveOnlyTask&&) noexcept = default;
+    MoveOnlyTask& operator=(MoveOnlyTask&&) noexcept = default;
+
+    MoveOnlyTask(const MoveOnlyTask&) = delete;
+    MoveOnlyTask& operator=(const MoveOnlyTask&) = delete;
+
+    void operator()() {
+        if (m_ptr) m_ptr->invoke();
+    }
+};
 
 class ThreadPool {
 public:
@@ -39,7 +74,7 @@ private:
 
 private:
     std::vector<std::thread> m_workers;
-    std::queue<std::function<void()>> m_tasks;
+    std::queue<MoveOnlyTask> m_tasks;
 
     mutable std::mutex m_queueMutex;
     std::condition_variable m_condition;

@@ -36,6 +36,8 @@ public:
     
     // Options
     void enableReuseAddress();
+    void setReceiveTimeout(int milliseconds);
+    void setSendTimeout(int milliseconds);
     
     // I/O operations
     std::size_t send(const void* data, std::size_t size);

@@ -32,7 +32,7 @@ ThreadPool::~ThreadPool() {
 
 void ThreadPool::workerLoop() {
     while (true) {
-        std::function<void()> task;
+        MoveOnlyTask task;
 
         {
             std::unique_lock<std::mutex> lock(m_queueMutex);
