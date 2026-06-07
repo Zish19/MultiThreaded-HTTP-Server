@@ -60,6 +60,13 @@ public:
                 throw std::runtime_error("enqueue on stopped ThreadPool");
             }
             m_tasks.emplace(std::forward<F>(task));
+            
+            std::size_t currentDepth = m_tasks.size();
+            std::size_t maxDepth = m_maxQueueDepth.load(std::memory_order_relaxed);
+            while (currentDepth > maxDepth && !m_maxQueueDepth.compare_exchange_weak(maxDepth, currentDepth, std::memory_order_relaxed)) {
+                // Loop until exchange succeeds or maxDepth is higher
+            }
+
             m_pendingTasks.fetch_add(1, std::memory_order_relaxed);
         }
         m_condition.notify_one();
@@ -68,6 +75,7 @@ public:
     std::size_t pendingTasks() const noexcept;
     std::size_t completedTasks() const noexcept;
     std::size_t workerCount() const noexcept;
+    std::size_t maxObservedQueueDepth() const noexcept;
 
 private:
     void workerLoop();
@@ -87,6 +95,7 @@ private:
 #endif
     alignas(64) std::atomic<std::size_t> m_pendingTasks{0};
     alignas(64) std::atomic<std::size_t> m_completedTasks{0};
+    alignas(64) std::atomic<std::size_t> m_maxQueueDepth{0};
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif

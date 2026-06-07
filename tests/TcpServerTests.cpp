@@ -51,7 +51,7 @@ void testTcpServerClientInteraction() {
     inet_pton(AF_INET, "127.0.0.1", &serverAddr.sin_addr);
     
     int result = connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
-    assert(result == 0);
+    if (result != 0) throw std::runtime_error("connect failed");
 #else
     sockaddr_in serverAddr{};
     serverAddr.sin_family = AF_INET;
@@ -59,7 +59,7 @@ void testTcpServerClientInteraction() {
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
     int result = connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr));
-    assert(result == 0);
+    if (result != 0) throw std::runtime_error("connect failed");
 #endif
     
     std::string testMsg = "MALFORMED HTTP REQUEST\r\n\r\n";

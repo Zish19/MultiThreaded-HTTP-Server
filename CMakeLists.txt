@@ -137,3 +137,22 @@ set(ROUTER_TEST_SOURCES
 )
 add_executable(RouterTests ${ROUTER_TEST_SOURCES})
 target_link_libraries(RouterTests PRIVATE Threads::Threads)
+
+set(BENCHMARK_SOURCES
+    benchmarks/BenchmarkRunner.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpMethod.cpp
+    src/HttpResponse.cpp
+    src/Router.cpp
+    src/ThreadPool.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+)
+add_executable(BenchmarkRunner ${BENCHMARK_SOURCES})
+if(WIN32)
+    target_link_libraries(BenchmarkRunner PRIVATE ws2_32 Threads::Threads)
+else()
+    target_link_libraries(BenchmarkRunner PRIVATE Threads::Threads)
+endif()
+

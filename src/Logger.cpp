@@ -9,12 +9,18 @@ Logger& Logger::getInstance() {
     return instance;
 }
 
+void Logger::setLogLevel(LogLevel level) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_currentLevel = level;
+}
+
 std::string Logger::levelToString(LogLevel level) const {
     switch (level) {
+        case LogLevel::DEBUG: return "DEBUG";
         case LogLevel::INFO: return "INFO";
         case LogLevel::WARNING: return "WARN";
         case LogLevel::ERROR: return "ERROR";
-        case LogLevel::DEBUG: return "DEBUG";
+        case LogLevel::NONE: return "NONE";
         default: return "UNKNOWN";
     }
 }
@@ -36,6 +42,9 @@ std::string Logger::getCurrentTimestamp() const {
 
 void Logger::log(LogLevel level, const std::string& message) const {
     std::lock_guard<std::mutex> lock(m_mutex);
+    if (level < m_currentLevel || m_currentLevel == LogLevel::NONE) {
+        return;
+    }
     std::cout << "[" << getCurrentTimestamp() << "] " 
               << "[" << levelToString(level) << "] " 
               << message << std::endl;

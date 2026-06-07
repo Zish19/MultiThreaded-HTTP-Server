@@ -67,3 +67,7 @@ std::size_t ThreadPool::completedTasks() const noexcept {
 std::size_t ThreadPool::workerCount() const noexcept {
     return m_workers.size();
 }
+
+std::size_t ThreadPool::maxObservedQueueDepth() const noexcept {
+    return m_maxQueueDepth.load(std::memory_order_relaxed);
+}

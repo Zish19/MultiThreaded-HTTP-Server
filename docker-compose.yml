@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: multithreaded_http_server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config.json:/app/config.json:ro
+    restart: unless-stopped

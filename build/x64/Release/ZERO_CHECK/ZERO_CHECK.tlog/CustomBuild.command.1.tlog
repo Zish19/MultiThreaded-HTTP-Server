@@ -1,0 +1,10 @@
+^C:\USERS\SHIVAM KUMAR\DESKTOP\MULTITHREADED_HTTP_SERVER\BUILD\CMAKEFILES\0DE5DCB79B2FB66B55202A01FDCD33DF\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server" "-BC:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/Shivam Kumar/Desktop/MultiThreaded_HTTP_Server/build/HttpServer.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
