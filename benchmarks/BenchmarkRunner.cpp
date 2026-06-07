@@ -98,8 +98,8 @@ void runThreadPoolBenchmarks() {
         pool.enqueue([&counter]() {
             counter.fetch_add(1, std::memory_order_relaxed);
             // Simulate tiny amount of work
-            int volatile dummy = 0;
-            for(int j=0; j<10; ++j) dummy++;
+            std::atomic<int> dummy{0};
+            for(int j=0; j<10; ++j) dummy.fetch_add(1, std::memory_order_relaxed);
         });
     }
     
