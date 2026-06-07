@@ -158,7 +158,110 @@ void runStaticFileBenchmarks() {
     std::filesystem::remove(testFile);
 }
 
+#include "TcpServer.h"
+#include "Socket.h"
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#endif
+
+namespace {
+    void connectSocket(Socket& client, std::uint16_t port) {
+        sockaddr_in serverAddr{};
+        serverAddr.sin_family = AF_INET;
+        serverAddr.sin_port = htons(port);
+        serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        
+        if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+            throw std::runtime_error("Failed to connect to test server");
+        }
+    }
+}
+
+
+void runKeepAliveBenchmarks() {
+    std::cout << "\n--- Keep-Alive Benchmarks ---\n";
+
+    ThreadPool pool(4);
+    Router router;
+    router.get("/health", [](const HttpRequest&) {
+        HttpResponse res;
+        res.setStatusCode(200);
+        res.setBody("OK");
+        return res;
+    });
+
+    std::uint16_t port = 8095;
+    TcpServer server(pool, router, port);
+    server.start();
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    const int ITERATIONS = 1000; // lower to 1000 to be safe
+    std::string request = "GET /health HTTP/1.1\r\nHost: localhost\r\n\r\n";
+
+    auto bench = [&](bool keepAlive) {
+        auto start = std::chrono::high_resolution_clock::now();
+        if (keepAlive) {
+            Socket client;
+            connectSocket(client, port);
+            for (int i = 0; i < ITERATIONS; ++i) {
+                client.sendAll(request);
+                std::string response;
+                while (response.find("OK") == std::string::npos) {
+                    response += client.receive(4096);
+                }
+            }
+            client.close();
+        } else {
+            for (int i = 0; i < ITERATIONS; ++i) {
+                Socket client;
+                connectSocket(client, port);
+                client.sendAll("GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n");
+                std::string response;
+                while (response.find("OK") == std::string::npos) {
+                    std::string chunk = client.receive(4096);
+                    if (chunk.empty()) break;
+                    response += chunk;
+                }
+                client.close();
+            }
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        auto durationMs = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+        double reqPerSec = (static_cast<double>(ITERATIONS) / durationMs) * 1000.0;
+        
+        std::cout << (keepAlive ? "With Keep-Alive" : "Without Keep-Alive") 
+                  << " - " << ITERATIONS << " requests: " 
+                  << durationMs << " ms (" << reqPerSec << " req/s)\n";
+        return reqPerSec;
+    };
+
+    try {
+        double rpsWithout = bench(false);
+        double rpsWith = bench(true);
+
+        if (rpsWithout > 0) {
+            double improvement = ((rpsWith - rpsWithout) / rpsWithout) * 100.0;
+            std::cout << "Improvement: " << improvement << "%\n";
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Benchmark failed: " << e.what() << "\n";
+    }
+
+    server.stop();
+}
+
 int main() {
+#if defined(_WIN32) || defined(_WIN64)
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2, 2), &wsaData);
+#endif
+
     Logger::getInstance().setLogLevel(LogLevel::NONE); // Disable logs for benchmarking
     
     std::cout << "Starting Benchmarks...\n";
@@ -166,7 +269,11 @@ int main() {
     runRouterBenchmarks();
     runThreadPoolBenchmarks();
     runStaticFileBenchmarks();
+    runKeepAliveBenchmarks();
     std::cout << "\nBenchmarks Complete.\n";
     
+#if defined(_WIN32) || defined(_WIN64)
+    WSACleanup();
+#endif
     return 0;
 }

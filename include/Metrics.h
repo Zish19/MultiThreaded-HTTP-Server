@@ -23,6 +23,8 @@ public:
     void recordError() noexcept;
     void addProcessingTimeMicros(std::uint64_t micros) noexcept;
     
+    void recordKeepAliveSession(std::uint64_t requestsHandled) noexcept;
+    
     void recordCacheHit() noexcept;
     void recordCacheMiss() noexcept;
     void recordCacheEviction() noexcept;
@@ -33,9 +35,13 @@ public:
     std::uint64_t getBytesReceived() const noexcept;
     std::uint64_t getBytesSent() const noexcept;
     double getUptimeSeconds() const noexcept;
-    std::uint64_t getTotalErrors() const noexcept;
-    double getAverageProcessingTimeMs() const noexcept;
+    std::uint64_t getTotalProcessingTimeMicros() const noexcept { return m_totalProcessingTimeMicros.load(std::memory_order_relaxed); }
+    double averageRequestTimeMs() const noexcept;
     
+    std::uint64_t getTotalKeepAliveConnections() const noexcept { return m_keepAliveConnections.load(std::memory_order_relaxed); }
+    std::uint64_t getKeepAliveRequests() const noexcept { return m_keepAliveRequests.load(std::memory_order_relaxed); }
+    std::uint64_t getMaxRequestsPerConnection() const noexcept { return m_maxRequestsPerConnection.load(std::memory_order_relaxed); }
+
     std::uint64_t getCacheHits() const noexcept;
     std::uint64_t getCacheMisses() const noexcept;
     std::uint64_t getCacheEvictions() const noexcept;
@@ -53,6 +59,10 @@ private:
     std::atomic<std::uint64_t> m_totalErrors{0};
     std::atomic<std::uint64_t> m_totalProcessingTimeMicros{0};
     
+    std::atomic<std::uint64_t> m_keepAliveConnections{0};
+    std::atomic<std::uint64_t> m_keepAliveRequests{0};
+    std::atomic<std::uint64_t> m_maxRequestsPerConnection{0};
+
     std::atomic<std::uint64_t> m_cacheHits{0};
     std::atomic<std::uint64_t> m_cacheMisses{0};
     std::atomic<std::uint64_t> m_cacheEvictions{0};

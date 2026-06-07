@@ -78,74 +78,143 @@ void TcpServer::handleClient(Socket client) {
     Logger::getInstance().info("Client connected");
 
     try {
-        std::string rawRequest;
-        bool headersComplete = false;
-        std::size_t expectedTotalSize = 0;
+        std::string requestBuffer;
+        requestBuffer.reserve(HttpParser::MAX_TOTAL_HEADERS_SIZE);
+        std::size_t bufferOffset = 0;
+        bool keepAlive = true;
+        std::uint64_t requestCount = 0;
 
-        // Ingestion Loop
-        while (true) {
-            std::string chunk = client.receive(4096);
-            if (chunk.empty()) {
-                break; // Client closed connection
-            }
-            rawRequest += chunk;
+        while (keepAlive && requestCount < 100) {
+            bool headersComplete = false;
+            std::size_t expectedTotalSize = 0;
+            std::size_t headerEnd = 0;
+            std::size_t separatorLen = 0;
 
-            if (!headersComplete) {
-                std::size_t separatorLen = 4;
-                std::size_t headerEnd = rawRequest.find("\r\n\r\n");
-                if (headerEnd == std::string::npos) {
-                    headerEnd = rawRequest.find("\n\n");
-                    separatorLen = 2;
+            try {
+                // Ingestion Loop
+                while (true) {
+                    std::string_view currentBuf(requestBuffer.data() + bufferOffset, requestBuffer.size() - bufferOffset);
+                    
+                    if (!headersComplete) {
+                        headerEnd = currentBuf.find("\r\n\r\n");
+                        separatorLen = 4;
+                        if (headerEnd == std::string_view::npos) {
+                            headerEnd = currentBuf.find("\n\n");
+                            separatorLen = 2;
+                        }
+
+                        if (headerEnd != std::string_view::npos) {
+                            headersComplete = true;
+                            std::size_t bodySize = HttpParser::extractExpectedBodySize(currentBuf.substr(0, headerEnd));
+                            expectedTotalSize = headerEnd + separatorLen + bodySize;
+                        } else if (currentBuf.size() > HttpParser::MAX_TOTAL_HEADERS_SIZE) {
+                            keepAlive = false;
+                            break;
+                        }
+                    }
+
+                    if (headersComplete && currentBuf.size() >= expectedTotalSize) {
+                        break; // Full request assembled
+                    }
+
+                    std::string chunk = client.receive(4096);
+                    if (chunk.empty()) {
+                        keepAlive = false;
+                        break;
+                    }
+                    requestBuffer += chunk;
                 }
 
-                if (headerEnd != std::string::npos) {
-                    headersComplete = true;
-                    std::size_t bodySize = HttpParser::extractExpectedBodySize(rawRequest.substr(0, headerEnd));
-                    expectedTotalSize = headerEnd + separatorLen + bodySize;
+                if (!keepAlive && (requestBuffer.size() - bufferOffset) == 0) {
+                    break; // Graceful close or timeout while idle
                 }
+
+                if (!keepAlive && !headersComplete) {
+                    HttpResponse res = HttpResponse::badRequest();
+                    res.addHeader("Connection", "close");
+                    client.sendAll(res.toString());
+                    break;
+                }
+
+                std::string_view currentBuf(requestBuffer.data() + bufferOffset, requestBuffer.size() - bufferOffset);
+                std::string_view rawRequestView = currentBuf.substr(0, expectedTotalSize);
+
+                Metrics::getInstance().addBytesReceived(rawRequestView.size());
+                Logger::getInstance().info("Request received");
+
+                HttpRequest req = HttpParser::parse(rawRequestView);
+                Metrics::getInstance().incrementRequests();
+                requestCount++;
+
+                // Keep-Alive Logic
+                std::string reqVersion = req.getVersion();
+                auto connHeaderOpt = req.getHeader("connection");
+                std::string connHeader = "";
+                if (connHeaderOpt) {
+                    connHeader = *connHeaderOpt;
+                    for (char& c : connHeader) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+                }
+
+                if (reqVersion == "HTTP/1.0") {
+                    keepAlive = (connHeader == "keep-alive");
+                } else {
+                    keepAlive = (connHeader != "close");
+                }
+
+                if (requestCount >= 100) {
+                    keepAlive = false;
+                }
+
+                HttpResponse res = m_router.dispatch(req);
+
+                if (keepAlive) {
+                    res.addHeader("Connection", "keep-alive");
+                } else {
+                    res.addHeader("Connection", "close");
+                }
+
+                std::string resStr = res.toString();
+                std::size_t sentBytes = client.sendAll(resStr);
+                Metrics::getInstance().addBytesSent(sentBytes);
+                Logger::getInstance().info("Response sent");
+
+                bufferOffset += expectedTotalSize;
+                
+                if (bufferOffset > requestBuffer.size() / 2) {
+                    requestBuffer.erase(0, bufferOffset);
+                    bufferOffset = 0;
+                }
+
+            } catch (const HttpParseException& e) {
+                Logger::getInstance().error(std::string("Parse error: ") + e.what());
+                HttpResponse res = HttpResponse::badRequest();
+                res.addHeader("Connection", "close");
+                try {
+                    std::size_t sentBytes = client.sendAll(res.toString());
+                    Metrics::getInstance().addBytesSent(sentBytes);
+                } catch (...) {}
+                break;
+            } catch (const std::exception& e) {
+                if (requestBuffer.size() - bufferOffset == 0) {
+                    break; // Silent close on timeout when idle
+                }
+                Logger::getInstance().error(std::string("Server error: ") + e.what());
+                HttpResponse res = HttpResponse::internalServerError();
+                res.addHeader("Connection", "close");
+                try {
+                    std::size_t sentBytes = client.sendAll(res.toString());
+                    Metrics::getInstance().addBytesSent(sentBytes);
+                } catch (...) {}
+                break;
             }
-
-            if (headersComplete && rawRequest.size() >= expectedTotalSize) {
-                break; // Full request assembled
-            }
         }
 
-        if (!rawRequest.empty()) {
-            Metrics::getInstance().addBytesReceived(rawRequest.size());
-            Logger::getInstance().info("Request received");
-
-            HttpRequest req = HttpParser::parse(rawRequest);
-            Metrics::getInstance().incrementRequests();
-
-            HttpResponse res = m_router.dispatch(req);
-
-            std::string resStr = res.toString();
-            std::size_t sentBytes = client.sendAll(resStr);
-            Metrics::getInstance().addBytesSent(sentBytes);
-            Logger::getInstance().info("Response sent");
+        if (requestCount > 0) {
+            Metrics::getInstance().recordKeepAliveSession(requestCount);
         }
-    } catch (const HttpParseException& e) {
-        Logger::getInstance().error(std::string("Parse error: ") + e.what());
-        HttpResponse res = HttpResponse::badRequest();
-        std::string resStr = res.toString();
-        
-        try {
-            std::size_t sentBytes = client.sendAll(resStr);
-            Metrics::getInstance().addBytesSent(sentBytes);
-        } catch (...) {
-            // Ignore send failures on error response
-        }
-    } catch (const std::exception& e) {
-        Logger::getInstance().error(std::string("Server error: ") + e.what());
-        HttpResponse res = HttpResponse::internalServerError();
-        std::string resStr = res.toString();
-        
-        try {
-            std::size_t sentBytes = client.sendAll(resStr);
-            Metrics::getInstance().addBytesSent(sentBytes);
-        } catch (...) {
-            // Ignore send failures on error response
-        }
+
+    } catch (...) {
+        // Catch any unforeseen fatal exceptions
     }
 
     client.close();

@@ -191,6 +191,32 @@ set(STATIC_FILE_TEST_SOURCES
 add_executable(StaticFileTests ${STATIC_FILE_TEST_SOURCES})
 target_link_libraries(StaticFileTests PRIVATE Threads::Threads)
 
+set(KEEP_ALIVE_TEST_SOURCES
+    tests/KeepAliveTests.cpp
+    src/TcpServer.cpp
+    src/Socket.cpp
+    src/ThreadPool.cpp
+    src/HttpParser.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+    src/Router.cpp
+    src/MiddlewarePipeline.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/FileCache.cpp
+    src/Config.cpp
+    src/WSAContext.cpp
+)
+add_executable(KeepAliveTests ${KEEP_ALIVE_TEST_SOURCES})
+if(WIN32)
+    target_link_libraries(KeepAliveTests PRIVATE ws2_32 Threads::Threads)
+else()
+    target_link_libraries(KeepAliveTests PRIVATE Threads::Threads)
+endif()
+
 set(FILE_CACHE_TEST_SOURCES
     tests/FileCacheTests.cpp
     src/FileCache.cpp
@@ -203,22 +229,26 @@ add_executable(FileCacheTests ${FILE_CACHE_TEST_SOURCES})
 target_link_libraries(FileCacheTests PRIVATE Threads::Threads)
 add_test(NAME FileCacheTests COMMAND FileCacheTests)
 add_test(NAME StaticFileTests COMMAND StaticFileTests)
+add_test(NAME KeepAliveTests COMMAND KeepAliveTests)
 
 set(BENCHMARK_SOURCES
     benchmarks/BenchmarkRunner.cpp
     src/HttpParser.cpp
     src/HttpRequest.cpp
-    src/HttpMethod.cpp
-    src/HttpResponse.cpp
     src/Router.cpp
     src/MiddlewarePipeline.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
     src/ThreadPool.cpp
     src/Logger.cpp
     src/Metrics.cpp
-    src/MimeTypes.cpp
-    src/FileCache.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
+    src/MimeTypes.cpp
     src/Config.cpp
+    src/TcpServer.cpp
+    src/Socket.cpp
+    src/WSAContext.cpp
 )
 add_executable(BenchmarkRunner ${BENCHMARK_SOURCES})
 if(WIN32)
@@ -230,7 +260,7 @@ endif()
 set(ALL_TEST_TARGETS 
     HttpServerTests SocketTests TcpServerTests HttpRequestTests 
     HttpResponseTests HttpParserTests IntegrationTests RouterTests 
-    MiddlewareTests StaticFileTests FileCacheTests
+    MiddlewareTests StaticFileTests FileCacheTests KeepAliveTests
 )
 foreach(TEST_TARGET ${ALL_TEST_TARGETS})
     target_compile_definitions(${TEST_TARGET} PRIVATE NDEBUG=0)

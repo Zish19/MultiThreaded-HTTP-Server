@@ -36,6 +36,18 @@ void Metrics::addProcessingTimeMicros(std::uint64_t micros) noexcept {
     m_totalProcessingTimeMicros.fetch_add(micros, std::memory_order_relaxed);
 }
 
+void Metrics::recordKeepAliveSession(std::uint64_t requestsHandled) noexcept {
+    if (requestsHandled >= 2) {
+        m_keepAliveConnections.fetch_add(1, std::memory_order_relaxed);
+        m_keepAliveRequests.fetch_add(requestsHandled, std::memory_order_relaxed);
+    }
+    
+    std::uint64_t currentMax = m_maxRequestsPerConnection.load(std::memory_order_relaxed);
+    while (requestsHandled > currentMax && !m_maxRequestsPerConnection.compare_exchange_weak(currentMax, requestsHandled, std::memory_order_relaxed)) {
+        // Retry until successful or currentMax is >= requestsHandled
+    }
+}
+
 void Metrics::recordCacheHit() noexcept {
     m_cacheHits.fetch_add(1, std::memory_order_relaxed);
 }
@@ -74,7 +86,7 @@ double Metrics::getUptimeSeconds() const noexcept {
     return uptime.count();
 }
 
-double Metrics::getAverageProcessingTimeMs() const noexcept {
+double Metrics::averageRequestTimeMs() const noexcept {
     std::uint64_t reqs = m_totalRequests.load(std::memory_order_relaxed);
     if (reqs == 0) return 0.0;
     std::uint64_t totalMicros = m_totalProcessingTimeMicros.load(std::memory_order_relaxed);
@@ -103,6 +115,13 @@ double Metrics::getCacheHitRatio() const noexcept {
 
 std::string Metrics::toJSON() const {
     std::stringstream ss;
+    std::uint64_t kaConns = m_keepAliveConnections.load(std::memory_order_relaxed);
+    std::uint64_t kaReqs = m_keepAliveRequests.load(std::memory_order_relaxed);
+    std::uint64_t maxKaReqs = m_maxRequestsPerConnection.load(std::memory_order_relaxed);
+    double avgKaReqs = (kaConns == 0) ? 0.0 : static_cast<double>(kaReqs) / kaConns;
+    double hitRatio = getCacheHitRatio();
+    std::uint64_t evictions = m_cacheEvictions.load(std::memory_order_relaxed);
+
     ss << "{\n"
        << "  \"total_requests\": " << getTotalRequests() << ",\n"
        << "  \"total_errors\": " << m_totalErrors.load(std::memory_order_relaxed) << ",\n"
@@ -110,11 +129,15 @@ std::string Metrics::toJSON() const {
        << "  \"total_connections\": " << getTotalConnections() << ",\n"
        << "  \"bytes_received\": " << getBytesReceived() << ",\n"
        << "  \"bytes_sent\": " << getBytesSent() << ",\n"
-       << "  \"average_processing_time_ms\": " << getAverageProcessingTimeMs() << ",\n"
+       << "  \"average_processing_time_ms\": " << averageRequestTimeMs() << ",\n"
        << "  \"cache_hits\": " << m_cacheHits.load(std::memory_order_relaxed) << ",\n"
        << "  \"cache_misses\": " << m_cacheMisses.load(std::memory_order_relaxed) << ",\n"
-       << "  \"cache_evictions\": " << m_cacheEvictions.load(std::memory_order_relaxed) << ",\n"
-       << "  \"cache_hit_ratio\": " << getCacheHitRatio() << ",\n"
+       << "  \"cache_evictions\": " << evictions << ",\n"
+       << "  \"cache_hit_ratio\": " << hitRatio << ",\n"
+       << "  \"total_keep_alive_connections\": " << kaConns << ",\n"
+       << "  \"keep_alive_requests\": " << kaReqs << ",\n"
+       << "  \"average_requests_per_connection\": " << avgKaReqs << ",\n"
+       << "  \"max_requests_per_connection\": " << maxKaReqs << ",\n"
        << "  \"uptime_seconds\": " << getUptimeSeconds() << "\n"
        << "}";
     return ss.str();

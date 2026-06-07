@@ -29,6 +29,9 @@
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\IntegrationTests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\KeepAliveTests.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\MiddlewareTests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
