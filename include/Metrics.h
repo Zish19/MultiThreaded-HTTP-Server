@@ -19,8 +19,6 @@ public:
     void incrementTotalConnections();
     void addBytesReceived(std::uint64_t bytes);
     void addBytesSent(std::uint64_t bytes);
-    void recordRequest() noexcept;
-    void recordError() noexcept;
     void addProcessingTimeMicros(std::uint64_t micros) noexcept;
     
     void recordKeepAliveSession(std::uint64_t requestsHandled) noexcept;

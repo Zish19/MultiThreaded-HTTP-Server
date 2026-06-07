@@ -38,7 +38,7 @@ public:
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
         
-        Metrics::getInstance().addProcessingTimeMicros(duration);
+        Metrics::getInstance().addProcessingTimeMicros(static_cast<std::uint64_t>(duration));
         // Note: incrementRequests() is already handled in TcpServer.cpp, 
         // to avoid double counting we don't increment it here, or we can move it. 
         // The prompt says "Do not modify TcpServer", so we leave incrementRequests there.

@@ -95,7 +95,11 @@ void Socket::listen(int backlog) {
 
 Socket Socket::accept() {
     sockaddr_in clientAddr{};
+#if defined(_WIN32) || defined(_WIN64)
     int clientAddrLen = sizeof(clientAddr);
+#else
+    socklen_t clientAddrLen = sizeof(clientAddr);
+#endif
 
     SocketHandle clientHandle = ::accept(m_handle, reinterpret_cast<sockaddr*>(&clientAddr), &clientAddrLen);
     if (clientHandle == InvalidHandle) {
@@ -106,7 +110,11 @@ Socket Socket::accept() {
 }
 
 std::size_t Socket::send(const void* data, std::size_t size) {
+#if defined(_WIN32) || defined(_WIN64)
     int bytesSent = ::send(m_handle, static_cast<const char*>(data), static_cast<int>(size), 0);
+#else
+    ssize_t bytesSent = ::send(m_handle, static_cast<const char*>(data), size, 0);
+#endif
     if (bytesSent < 0) {
         throw std::runtime_error("Failed to send data");
     }
@@ -131,7 +139,11 @@ std::size_t Socket::sendAll(const std::string& data) {
 
 std::string Socket::receive(std::size_t maxBytes) {
     std::vector<char> buffer(maxBytes);
+#if defined(_WIN32) || defined(_WIN64)
     int bytesReceived = ::recv(m_handle, buffer.data(), static_cast<int>(maxBytes), 0);
+#else
+    ssize_t bytesReceived = ::recv(m_handle, buffer.data(), maxBytes, 0);
+#endif
     
     if (bytesReceived < 0) {
         throw std::runtime_error("Failed to receive data");

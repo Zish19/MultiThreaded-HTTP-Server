@@ -16,6 +16,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+enable_testing()
+
 set(SOURCES
     src/main.cpp
     src/Logger.cpp
@@ -52,6 +54,7 @@ set(TEST_SOURCES
 )
 add_executable(HttpServerTests ${TEST_SOURCES})
 target_link_libraries(HttpServerTests PRIVATE Threads::Threads)
+add_test(NAME HttpServerTests COMMAND HttpServerTests)
 
 set(SOCKET_TEST_SOURCES
     tests/SocketTests.cpp
@@ -65,6 +68,7 @@ if(WIN32)
 else()
     target_link_libraries(SocketTests PRIVATE Threads::Threads)
 endif()
+add_test(NAME SocketTests COMMAND SocketTests)
 
 set(TCP_SERVER_TEST_SOURCES
     tests/TcpServerTests.cpp
@@ -92,6 +96,7 @@ if(WIN32)
 else()
     target_link_libraries(TcpServerTests PRIVATE Threads::Threads)
 endif()
+add_test(NAME TcpServerTests COMMAND TcpServerTests)
 
 set(HTTP_REQUEST_TEST_SOURCES
     tests/HttpRequestTests.cpp
@@ -100,6 +105,7 @@ set(HTTP_REQUEST_TEST_SOURCES
 )
 add_executable(HttpRequestTests ${HTTP_REQUEST_TEST_SOURCES})
 target_link_libraries(HttpRequestTests PRIVATE Threads::Threads)
+add_test(NAME HttpRequestTests COMMAND HttpRequestTests)
 
 set(HTTP_RESPONSE_TEST_SOURCES
     tests/HttpResponseTests.cpp
@@ -107,6 +113,7 @@ set(HTTP_RESPONSE_TEST_SOURCES
 )
 add_executable(HttpResponseTests ${HTTP_RESPONSE_TEST_SOURCES})
 target_link_libraries(HttpResponseTests PRIVATE Threads::Threads)
+add_test(NAME HttpResponseTests COMMAND HttpResponseTests)
 
 set(HTTP_PARSER_TEST_SOURCES
     tests/HttpParserTests.cpp
@@ -116,6 +123,7 @@ set(HTTP_PARSER_TEST_SOURCES
 )
 add_executable(HttpParserTests ${HTTP_PARSER_TEST_SOURCES})
 target_link_libraries(HttpParserTests PRIVATE Threads::Threads)
+add_test(NAME HttpParserTests COMMAND HttpParserTests)
 
 set(INTEGRATION_TEST_SOURCES
     tests/IntegrationTests.cpp
@@ -141,6 +149,7 @@ if(WIN32)
 else()
     target_link_libraries(IntegrationTests PRIVATE Threads::Threads)
 endif()
+add_test(NAME IntegrationTests COMMAND IntegrationTests)
 
 set(ROUTER_TEST_SOURCES
     tests/RouterTests.cpp
@@ -158,6 +167,7 @@ set(ROUTER_TEST_SOURCES
 )
 add_executable(RouterTests ${ROUTER_TEST_SOURCES})
 target_link_libraries(RouterTests PRIVATE Threads::Threads)
+add_test(NAME RouterTests COMMAND RouterTests)
 
 set(MIDDLEWARE_TEST_SOURCES
     tests/MiddlewareTests.cpp
@@ -175,6 +185,7 @@ set(MIDDLEWARE_TEST_SOURCES
 )
 add_executable(MiddlewareTests ${MIDDLEWARE_TEST_SOURCES})
 target_link_libraries(MiddlewareTests PRIVATE Threads::Threads)
+add_test(NAME MiddlewareTests COMMAND MiddlewareTests)
 
 set(STATIC_FILE_TEST_SOURCES
     tests/StaticFileTests.cpp

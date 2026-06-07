@@ -11,7 +11,6 @@
 #include <cassert>
 #include <thread>
 #include <chrono>
-#include <chrono>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <winsock2.h>
@@ -28,7 +27,11 @@ void connectSocket(Socket& client, std::uint16_t port) {
     serverAddr.sin_port = htons(port);
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
+#if defined(_WIN32) || defined(_WIN64)
     if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#else
+    if (::connect(static_cast<int>(client.handle()), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#endif
         throw std::runtime_error("Failed to connect to test server");
     }
 }

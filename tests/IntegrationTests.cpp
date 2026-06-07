@@ -37,7 +37,11 @@ void testEndToEndGet() {
     // 127.0.0.1
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
+#if defined(_WIN32) || defined(_WIN64)
     if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#else
+    if (::connect(static_cast<int>(client.handle()), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#endif
         throw std::runtime_error("Failed to connect to test server");
     }
 
@@ -72,7 +76,11 @@ void testEndToEndPost() {
     serverAddr.sin_port = htons(8081);
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
+#if defined(_WIN32) || defined(_WIN64)
     if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#else
+    if (::connect(static_cast<int>(client.handle()), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+#endif
         throw std::runtime_error("Failed to connect to test server");
     }
 
@@ -105,7 +113,7 @@ void testEndToEndFragmentation() {
     serverAddr.sin_port = htons(8082);
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
-    if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+    if (::connect(static_cast<int>(client.handle()), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
         throw std::runtime_error("Failed to connect to test server");
     }
 
@@ -142,7 +150,7 @@ void testEndToEndBadRequest() {
     serverAddr.sin_port = htons(8083);
     serverAddr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     
-    if (::connect(client.handle(), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
+    if (::connect(static_cast<int>(client.handle()), reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) < 0) {
         throw std::runtime_error("Failed to connect to test server");
     }
 

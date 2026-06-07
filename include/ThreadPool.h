@@ -21,7 +21,7 @@ class MoveOnlyTask {
     template <typename F>
     struct Model : Concept {
         F f;
-        Model(F&& f) : f(std::move(f)) {}
+        Model(F&& func) : f(std::move(func)) {}
         void invoke() override { f(); }
     };
 
