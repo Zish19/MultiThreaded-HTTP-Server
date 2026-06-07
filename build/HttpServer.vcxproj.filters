@@ -49,6 +49,9 @@
     <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\StaticFileHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\FileCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\CMakeLists.txt" />

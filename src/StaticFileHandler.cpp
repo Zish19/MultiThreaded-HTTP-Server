@@ -21,6 +21,8 @@ namespace {
     }
 }
 
+StaticFileHandler::StaticFileHandler(FileCache& cache) : m_cache(cache) {}
+
 HttpResponse StaticFileHandler::handle(const HttpRequest& req) {
     std::string path = req.getPath();
     
@@ -64,8 +66,8 @@ HttpResponse StaticFileHandler::handle(const HttpRequest& req) {
         return HttpResponse::notFound();
     }
 
-    std::ifstream file(requestedPath, std::ios::binary | std::ios::ate);
-    if (!file.is_open()) {
+    auto cachedFileOpt = m_cache.getFile(requestedPath);
+    if (!cachedFileOpt) {
         HttpResponse res;
         res.setStatusCode(403);
         res.setStatusText("Forbidden");
@@ -73,22 +75,9 @@ HttpResponse StaticFileHandler::handle(const HttpRequest& req) {
         return res;
     }
 
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::string buffer;
-    if (size > 0) {
-        buffer.resize(static_cast<size_t>(size));
-        if (!file.read(buffer.data(), size)) {
-            return HttpResponse::internalServerError();
-        }
-    }
-
-    HttpResponse res = HttpResponse::ok(std::move(buffer));
-    
-    std::string extension = requestedPath.extension().string();
-    res.addHeader("Content-Type", MimeTypes::getType(extension));
-    res.addHeader("Content-Length", std::to_string(size));
+    HttpResponse res = HttpResponse::ok(cachedFileOpt->content);
+    res.addHeader("Content-Type", cachedFileOpt->mimeType);
+    res.addHeader("Content-Length", std::to_string(cachedFileOpt->size));
 
     return res;
 }

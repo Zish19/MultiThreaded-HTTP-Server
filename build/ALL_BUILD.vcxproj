@@ -178,6 +178,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{61B0546C-D3E1-3DA5-91DE-9735EFBE0EBB}</Project>
       <Name>BenchmarkRunner</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\FileCacheTests.vcxproj">
+      <Project>{A3AC9171-A6DA-3875-81ED-068D8527B98B}</Project>
+      <Name>FileCacheTests</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpParserTests.vcxproj">
       <Project>{9D322C2E-500C-30D3-B247-F2689897664B}</Project>
       <Name>HttpParserTests</Name>

@@ -4,10 +4,11 @@
 #include <cstdint>
 
 struct ServerConfig {
-    std::uint16_t port = 8080;
-    std::uint32_t threadCount = 4;
-    std::string publicDirectory = "./public";
-    bool keepAlive = true;
+    std::uint16_t port{8080};
+    std::uint32_t threadCount{4};
+    std::string publicDirectory{"./public"};
+    bool keepAlive{true};
+    std::size_t maxCacheSizeMb{64};
 };
 
 class Config {
@@ -21,6 +22,7 @@ public:
 
     const ServerConfig& getServerConfig() const noexcept;
     std::string getPublicDirectory() const noexcept;
+    std::size_t getMaxCacheSizeMb() const noexcept;
 
 private:
     Config() = default;

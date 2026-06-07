@@ -33,6 +33,7 @@ set(SOURCES
     src/MiddlewarePipeline.cpp
     src/MimeTypes.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
 )
 
 add_executable(HttpServer ${SOURCES})
@@ -81,6 +82,7 @@ set(TCP_SERVER_TEST_SOURCES
     src/MiddlewarePipeline.cpp
     src/MimeTypes.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
     src/Config.cpp
 )
 add_executable(TcpServerTests ${TCP_SERVER_TEST_SOURCES})
@@ -130,6 +132,7 @@ set(INTEGRATION_TEST_SOURCES
     src/MiddlewarePipeline.cpp
     src/MimeTypes.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
     src/Config.cpp
 )
 add_executable(IntegrationTests ${INTEGRATION_TEST_SOURCES})
@@ -148,8 +151,10 @@ set(ROUTER_TEST_SOURCES
     src/MiddlewarePipeline.cpp
     src/MimeTypes.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
     src/Config.cpp
     src/Logger.cpp
+    src/Metrics.cpp
 )
 add_executable(RouterTests ${ROUTER_TEST_SOURCES})
 target_link_libraries(RouterTests PRIVATE Threads::Threads)
@@ -165,6 +170,7 @@ set(MIDDLEWARE_TEST_SOURCES
     src/Metrics.cpp
     src/MimeTypes.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
     src/Config.cpp
 )
 add_executable(MiddlewareTests ${MIDDLEWARE_TEST_SOURCES})
@@ -173,6 +179,7 @@ target_link_libraries(MiddlewareTests PRIVATE Threads::Threads)
 set(STATIC_FILE_TEST_SOURCES
     tests/StaticFileTests.cpp
     src/StaticFileHandler.cpp
+    src/FileCache.cpp
     src/MimeTypes.cpp
     src/Config.cpp
     src/Logger.cpp
@@ -183,6 +190,19 @@ set(STATIC_FILE_TEST_SOURCES
 )
 add_executable(StaticFileTests ${STATIC_FILE_TEST_SOURCES})
 target_link_libraries(StaticFileTests PRIVATE Threads::Threads)
+
+set(FILE_CACHE_TEST_SOURCES
+    tests/FileCacheTests.cpp
+    src/FileCache.cpp
+    src/MimeTypes.cpp
+    src/Config.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+)
+add_executable(FileCacheTests ${FILE_CACHE_TEST_SOURCES})
+target_link_libraries(FileCacheTests PRIVATE Threads::Threads)
+add_test(NAME FileCacheTests COMMAND FileCacheTests)
+add_test(NAME StaticFileTests COMMAND StaticFileTests)
 
 set(BENCHMARK_SOURCES
     benchmarks/BenchmarkRunner.cpp
@@ -196,6 +216,7 @@ set(BENCHMARK_SOURCES
     src/Logger.cpp
     src/Metrics.cpp
     src/MimeTypes.cpp
+    src/FileCache.cpp
     src/StaticFileHandler.cpp
     src/Config.cpp
 )
@@ -206,3 +227,11 @@ else()
     target_link_libraries(BenchmarkRunner PRIVATE Threads::Threads)
 endif()
 
+set(ALL_TEST_TARGETS 
+    HttpServerTests SocketTests TcpServerTests HttpRequestTests 
+    HttpResponseTests HttpParserTests IntegrationTests RouterTests 
+    MiddlewareTests StaticFileTests FileCacheTests
+)
+foreach(TEST_TARGET ${ALL_TEST_TARGETS})
+    target_compile_definitions(${TEST_TARGET} PRIVATE NDEBUG=0)
+endforeach()

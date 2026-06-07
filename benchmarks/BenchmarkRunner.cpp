@@ -6,6 +6,10 @@
 #include "Router.h"
 #include "ThreadPool.h"
 #include "Logger.h"
+#include "FileCache.h"
+#include "StaticFileHandler.h"
+#include <fstream>
+#include <filesystem>
 
 using namespace std::chrono;
 
@@ -112,6 +116,48 @@ void runThreadPoolBenchmarks() {
     std::cout << "Max Observed Queue Depth: " << pool.maxObservedQueueDepth() << "\n";
 }
 
+void runStaticFileBenchmarks() {
+    std::cout << "\n--- Static File Server Benchmarks ---\n";
+    std::filesystem::create_directories("./public");
+    std::string testFile = "public/benchmark.html";
+    std::ofstream out(testFile, std::ios::binary);
+    std::string content(10 * 1024, 'A'); // 10 KB file
+    out << content;
+    out.close();
+
+    HttpRequest req;
+    req.setMethod(HttpMethod::GET);
+    req.setPath("/benchmark.html");
+
+    const int iterations = 10000;
+
+    auto bench = [&](const std::string& name, FileCache& cache) {
+        StaticFileHandler handler(cache);
+        auto start = high_resolution_clock::now();
+        for (int i = 0; i < iterations; ++i) {
+            HttpResponse res = handler.handle(req);
+        }
+        auto end = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(end - start).count();
+        std::cout << name << " - " << iterations << " requests: " 
+                  << duration << " ms (" 
+                  << (iterations * 1000.0 / (duration > 0 ? duration : 1)) << " req/s)\n";
+    };
+
+    FileCache coldCache(0); // 0 bytes max size -> forces cache miss every time
+    bench("Without Cache (Cold)", coldCache);
+
+    FileCache warmCache(64 * 1024 * 1024); // 64 MB max size -> cache hit every time
+    // pre-warm
+    {
+        StaticFileHandler warmup(warmCache);
+        warmup.handle(req);
+    }
+    bench("With Cache (Warm)", warmCache);
+
+    std::filesystem::remove(testFile);
+}
+
 int main() {
     Logger::getInstance().setLogLevel(LogLevel::NONE); // Disable logs for benchmarking
     
@@ -119,6 +165,7 @@ int main() {
     runParserBenchmarks();
     runRouterBenchmarks();
     runThreadPoolBenchmarks();
+    runStaticFileBenchmarks();
     std::cout << "\nBenchmarks Complete.\n";
     
     return 0;

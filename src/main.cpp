@@ -4,6 +4,7 @@
 #include "ThreadPool.h"
 #include "TcpServer.h"
 #include "Middleware.h"
+#include "FileCache.h"
 #include "StaticFileHandler.h"
 #include <iostream>
 
@@ -24,10 +25,12 @@ int main() {
     
     std::uint16_t port = 8080;
     std::size_t threads = 4;
+    std::size_t maxCacheSizeMb = 64;
     
     if (Config::getInstance().loadFromFile("config.json")) {
         port = Config::getInstance().getServerConfig().port;
         threads = Config::getInstance().getServerConfig().threadCount;
+        maxCacheSizeMb = Config::getInstance().getMaxCacheSizeMb();
     }
 
     try {
@@ -38,12 +41,15 @@ int main() {
         router.use(BuiltInMiddleware::LoggingMiddleware);
         router.use(BuiltInMiddleware::MetricsMiddleware);
         
+        FileCache cache(maxCacheSizeMb * 1024 * 1024);
+        StaticFileHandler staticHandler(cache);
+        
         // Static Files
-        router.get("/", StaticFileHandler::handle);
-        router.get("/index.html", StaticFileHandler::handle);
-        router.get("/style.css", StaticFileHandler::handle);
-        router.get("/app.js", StaticFileHandler::handle);
-        router.get("/favicon.ico", StaticFileHandler::handle);
+        router.get("/", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });
+        router.get("/index.html", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });
+        router.get("/style.css", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });
+        router.get("/app.js", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });
+        router.get("/favicon.ico", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });
         
         router.get("/health", [](const HttpRequest&) {
             return HttpResponse::ok("OK");

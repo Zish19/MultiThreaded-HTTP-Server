@@ -1,5 +1,6 @@
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\tests\StaticFileTests.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\StaticFileTests.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\StaticFileHandler.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\StaticFileHandler.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\FileCache.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\FileCache.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MimeTypes.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\MimeTypes.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Config.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\Config.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Logger.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.dir\Release\Logger.obj

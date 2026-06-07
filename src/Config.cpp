@@ -16,6 +16,10 @@ std::string Config::getPublicDirectory() const noexcept {
     return m_config.publicDirectory;
 }
 
+std::size_t Config::getMaxCacheSizeMb() const noexcept {
+    return m_config.maxCacheSizeMb;
+}
+
 std::string Config::extractJsonValue(const std::string& json, const std::string& key) {
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey);
@@ -68,6 +72,11 @@ bool Config::loadFromFile(const std::string& filepath) {
     std::string pubDir = extractJsonValue(jsonStr, "public_directory");
     if (!pubDir.empty()) {
         m_config.publicDirectory = pubDir;
+    }
+
+    std::string cacheSizeStr = extractJsonValue(jsonStr, "max_cache_size_mb");
+    if (!cacheSizeStr.empty()) {
+        m_config.maxCacheSizeMb = static_cast<std::size_t>(std::stoull(cacheSizeStr));
     }
     
     std::string keepAliveStr = extractJsonValue(jsonStr, "keepAlive");

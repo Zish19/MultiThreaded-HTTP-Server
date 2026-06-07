@@ -8,4 +8,5 @@ C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Logger.cpp;C:\Users\
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Metrics.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.dir\Release\Metrics.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MimeTypes.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.dir\Release\MimeTypes.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\StaticFileHandler.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.dir\Release\StaticFileHandler.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\FileCache.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.dir\Release\FileCache.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Config.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.dir\Release\Config.obj

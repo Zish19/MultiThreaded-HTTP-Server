@@ -19,7 +19,13 @@ public:
     void incrementTotalConnections();
     void addBytesReceived(std::uint64_t bytes);
     void addBytesSent(std::uint64_t bytes);
-    void addProcessingTimeMicros(std::uint64_t micros);
+    void recordRequest() noexcept;
+    void recordError() noexcept;
+    void addProcessingTimeMicros(std::uint64_t micros) noexcept;
+    
+    void recordCacheHit() noexcept;
+    void recordCacheMiss() noexcept;
+    void recordCacheEviction() noexcept;
 
     std::uint64_t getTotalRequests() const noexcept;
     std::int32_t getActiveConnections() const noexcept;
@@ -27,8 +33,14 @@ public:
     std::uint64_t getBytesReceived() const noexcept;
     std::uint64_t getBytesSent() const noexcept;
     double getUptimeSeconds() const noexcept;
-    double getAverageRequestTimeMs() const noexcept;
+    std::uint64_t getTotalErrors() const noexcept;
+    double getAverageProcessingTimeMs() const noexcept;
     
+    std::uint64_t getCacheHits() const noexcept;
+    std::uint64_t getCacheMisses() const noexcept;
+    std::uint64_t getCacheEvictions() const noexcept;
+    double getCacheHitRatio() const noexcept;
+
     std::string toJSON() const;
 
 private:
@@ -38,8 +50,13 @@ private:
     std::atomic<std::uint64_t> m_totalRequests{0};
     std::atomic<std::int32_t> m_activeConnections{0};
     std::atomic<std::uint64_t> m_totalConnections{0};
+    std::atomic<std::uint64_t> m_totalErrors{0};
+    std::atomic<std::uint64_t> m_totalProcessingTimeMicros{0};
+    
+    std::atomic<std::uint64_t> m_cacheHits{0};
+    std::atomic<std::uint64_t> m_cacheMisses{0};
+    std::atomic<std::uint64_t> m_cacheEvictions{0};
     std::atomic<std::uint64_t> m_bytesReceived{0};
     std::atomic<std::uint64_t> m_bytesSent{0};
-    std::atomic<std::uint64_t> m_totalProcessingTimeMicros{0};
     std::chrono::time_point<std::chrono::steady_clock> m_startTime;
 };

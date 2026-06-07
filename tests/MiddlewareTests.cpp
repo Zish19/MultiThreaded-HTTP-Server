@@ -1,4 +1,3 @@
-#undef NDEBUG
 #include "Router.h"
 #include "Middleware.h"
 #include <iostream>

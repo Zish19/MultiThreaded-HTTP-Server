@@ -2,5 +2,6 @@
   "port": 8080,
   "threadCount": 8,
   "public_directory": "./public",
-  "keepAlive": true
+  "keepAlive": true,
+  "max_cache_size_mb": 64
 }

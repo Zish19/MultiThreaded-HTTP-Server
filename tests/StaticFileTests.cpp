@@ -1,5 +1,5 @@
-#undef NDEBUG
 #include "StaticFileHandler.h"
+#include "FileCache.h"
 #include "Config.h"
 #include "HttpRequest.h"
 #include "HttpResponse.h"
@@ -42,7 +42,9 @@ void testExistingFile() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/style.css");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody() == "body { color: red; }");
     assert(res.getHeader("Content-Type").value() == "text/css");
@@ -54,7 +56,9 @@ void testMissingFile() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/missing.html");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 404);
     std::cout << "[PASS] testMissingFile\n";
 }
@@ -64,7 +68,9 @@ void testRootPath() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody() == "<h1>Index</h1>");
     assert(res.getHeader("Content-Type").value() == "text/html");
@@ -76,7 +82,9 @@ void testMimeTypeLookup() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/data.bin"); // .bin is not in our known list, should fallback
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getHeader("Content-Type").value() == "application/octet-stream");
     std::cout << "[PASS] testMimeTypeLookup\n";
@@ -88,7 +96,9 @@ void testPathTraversalAttack() {
     // Path traversal to exit public directory
     req.setPath("/../../CMakeLists.txt");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     // Should be forbidden
     assert(res.getStatusCode() == 403);
     std::cout << "[PASS] testPathTraversalAttack\n";
@@ -99,11 +109,12 @@ void testBinaryFileServing() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/data.bin");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
-    const std::string& body = res.getBody();
-    assert(body.size() == 4);
-    assert(body[0] == 0x00 && body[1] == 0x01 && body[2] == 0x02 && body[3] == '\xFF');
+    assert(res.getBody().size() == 4);
+    assert(res.getBody()[0] == 0x00 && res.getBody()[1] == 0x01 && res.getBody()[2] == 0x02 && res.getBody()[3] == '\xFF');
     std::cout << "[PASS] testBinaryFileServing\n";
 }
 
@@ -112,7 +123,9 @@ void testEmptyFile() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/empty.txt");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody().empty());
     assert(res.getHeader("Content-Length").value() == "0");
@@ -124,7 +137,9 @@ void testLargeFile() {
     req.setMethod(HttpMethod::GET);
     req.setPath("/large.bin");
     
-    HttpResponse res = StaticFileHandler::handle(req);
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody().size() == 1024 * 1024);
     assert(res.getHeader("Content-Length").value() == std::to_string(1024 * 1024));
@@ -132,12 +147,15 @@ void testLargeFile() {
 }
 
 void testConcurrentRequests() {
-    auto worker = []() {
+    FileCache cache(64 * 1024 * 1024);
+    StaticFileHandler handler(cache);
+    
+    auto worker = [&]() {
         for(int i = 0; i < 20; ++i) {
             HttpRequest req;
             req.setMethod(HttpMethod::GET);
             req.setPath("/style.css");
-            HttpResponse res = StaticFileHandler::handle(req);
+            HttpResponse res = handler.handle(req);
             assert(res.getStatusCode() == 200);
         }
     };
