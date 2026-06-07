@@ -1,0 +1,15 @@
+build/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Testing/
+compile_commands.json
+.vs/
+.vscode/
+.idea/
+*.obj
+*.pdb
+*.exe
+*.dll
+*.user
+*.suo
