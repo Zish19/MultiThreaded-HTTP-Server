@@ -1,3 +1,4 @@
+#undef NDEBUG
 #include "Router.h"
 #include "Middleware.h"
 #include <iostream>
@@ -84,7 +85,7 @@ void testMiddlewareModifyingResponse() {
     req.setPath("/mod");
     HttpResponse res = router.dispatch(req);
     
-    assert(res.getHeaders().at("X-Custom-Header") == "Modified");
+    assert(res.getHeader("X-Custom-Header").value() == "Modified");
     std::cout << "[PASS] testMiddlewareModifyingResponse\n";
 }
 

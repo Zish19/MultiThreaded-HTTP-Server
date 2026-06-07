@@ -12,3 +12,5 @@ C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\HttpResponse.cpp;C:\
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\HttpMethod.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Release\HttpMethod.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Router.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Release\Router.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MiddlewarePipeline.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Release\MiddlewarePipeline.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MimeTypes.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Release\MimeTypes.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\StaticFileHandler.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\HttpServer.dir\Release\StaticFileHandler.obj

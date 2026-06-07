@@ -8,3 +8,6 @@ C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MiddlewarePipeline.c
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\ThreadPool.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\ThreadPool.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Logger.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\Logger.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Metrics.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\Metrics.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MimeTypes.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\MimeTypes.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\StaticFileHandler.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\StaticFileHandler.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Config.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\BenchmarkRunner.dir\Release\Config.obj

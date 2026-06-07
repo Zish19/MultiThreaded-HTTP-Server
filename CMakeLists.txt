@@ -31,6 +31,8 @@ set(SOURCES
     src/HttpMethod.cpp
     src/Router.cpp
     src/MiddlewarePipeline.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
 )
 
 add_executable(HttpServer ${SOURCES})
@@ -77,6 +79,9 @@ set(TCP_SERVER_TEST_SOURCES
     src/HttpMethod.cpp
     src/Router.cpp
     src/MiddlewarePipeline.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/Config.cpp
 )
 add_executable(TcpServerTests ${TCP_SERVER_TEST_SOURCES})
 
@@ -123,6 +128,9 @@ set(INTEGRATION_TEST_SOURCES
     src/Metrics.cpp
     src/Router.cpp
     src/MiddlewarePipeline.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/Config.cpp
 )
 add_executable(IntegrationTests ${INTEGRATION_TEST_SOURCES})
 if(WIN32)
@@ -138,6 +146,10 @@ set(ROUTER_TEST_SOURCES
     src/HttpResponse.cpp
     src/HttpMethod.cpp
     src/MiddlewarePipeline.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/Config.cpp
+    src/Logger.cpp
 )
 add_executable(RouterTests ${ROUTER_TEST_SOURCES})
 target_link_libraries(RouterTests PRIVATE Threads::Threads)
@@ -151,9 +163,26 @@ set(MIDDLEWARE_TEST_SOURCES
     src/HttpMethod.cpp
     src/Logger.cpp
     src/Metrics.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/Config.cpp
 )
 add_executable(MiddlewareTests ${MIDDLEWARE_TEST_SOURCES})
 target_link_libraries(MiddlewareTests PRIVATE Threads::Threads)
+
+set(STATIC_FILE_TEST_SOURCES
+    tests/StaticFileTests.cpp
+    src/StaticFileHandler.cpp
+    src/MimeTypes.cpp
+    src/Config.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+)
+add_executable(StaticFileTests ${STATIC_FILE_TEST_SOURCES})
+target_link_libraries(StaticFileTests PRIVATE Threads::Threads)
 
 set(BENCHMARK_SOURCES
     benchmarks/BenchmarkRunner.cpp
@@ -166,6 +195,9 @@ set(BENCHMARK_SOURCES
     src/ThreadPool.cpp
     src/Logger.cpp
     src/Metrics.cpp
+    src/MimeTypes.cpp
+    src/StaticFileHandler.cpp
+    src/Config.cpp
 )
 add_executable(BenchmarkRunner ${BENCHMARK_SOURCES})
 if(WIN32)

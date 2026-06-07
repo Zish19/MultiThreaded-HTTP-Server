@@ -214,6 +214,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{41B8C672-2D0A-3CE8-AC88-FC98568E6D60}</Project>
       <Name>SocketTests</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\StaticFileTests.vcxproj">
+      <Project>{EF1ECFE8-E996-3F9C-9A9C-32202C23D727}</Project>
+      <Name>StaticFileTests</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\TcpServerTests.vcxproj">
       <Project>{F80B6041-D51F-3B15-BAC4-46581811BB86}</Project>
       <Name>TcpServerTests</Name>

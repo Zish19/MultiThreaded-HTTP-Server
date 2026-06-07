@@ -35,6 +35,9 @@
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\SocketTests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>
+      <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\StaticFileTests.exe</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
       <FullPath>C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\Release\TcpServerTests.exe</FullPath>
     </ProjectOutput>
     <ProjectOutput>

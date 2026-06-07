@@ -12,6 +12,10 @@ const ServerConfig& Config::getServerConfig() const noexcept {
     return m_config;
 }
 
+std::string Config::getPublicDirectory() const noexcept {
+    return m_config.publicDirectory;
+}
+
 std::string Config::extractJsonValue(const std::string& json, const std::string& key) {
     std::string searchKey = "\"" + key + "\"";
     std::size_t keyPos = json.find(searchKey);
@@ -61,7 +65,7 @@ bool Config::loadFromFile(const std::string& filepath) {
         m_config.threadCount = static_cast<std::uint32_t>(std::stoi(threadsStr));
     }
 
-    std::string pubDir = extractJsonValue(jsonStr, "publicDirectory");
+    std::string pubDir = extractJsonValue(jsonStr, "public_directory");
     if (!pubDir.empty()) {
         m_config.publicDirectory = pubDir;
     }

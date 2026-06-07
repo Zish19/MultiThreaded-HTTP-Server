@@ -1,3 +1,4 @@
+#undef NDEBUG
 #include "TcpServer.h"
 #include "ThreadPool.h"
 #include "Socket.h"

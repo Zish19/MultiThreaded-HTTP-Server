@@ -3,6 +3,8 @@
 #include "Config.h"
 #include "ThreadPool.h"
 #include "TcpServer.h"
+#include "Middleware.h"
+#include "StaticFileHandler.h"
 #include <iostream>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -31,9 +33,17 @@ int main() {
     try {
         Router router;
         
-        router.get("/", [](const HttpRequest&) {
-            return HttpResponse::ok("Welcome to My C++ Server");
-        });
+        // Register Middleware
+        router.use(BuiltInMiddleware::RequestIdMiddleware);
+        router.use(BuiltInMiddleware::LoggingMiddleware);
+        router.use(BuiltInMiddleware::MetricsMiddleware);
+        
+        // Static Files
+        router.get("/", StaticFileHandler::handle);
+        router.get("/index.html", StaticFileHandler::handle);
+        router.get("/style.css", StaticFileHandler::handle);
+        router.get("/app.js", StaticFileHandler::handle);
+        router.get("/favicon.ico", StaticFileHandler::handle);
         
         router.get("/health", [](const HttpRequest&) {
             return HttpResponse::ok("OK");
