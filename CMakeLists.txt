@@ -274,5 +274,9 @@ set(ALL_TEST_TARGETS
     MiddlewareTests StaticFileTests FileCacheTests KeepAliveTests
 )
 foreach(TEST_TARGET ${ALL_TEST_TARGETS})
-    target_compile_definitions(${TEST_TARGET} PRIVATE NDEBUG=0)
+    if(MSVC)
+        target_compile_options(${TEST_TARGET} PRIVATE /UNDEBUG)
+    else()
+        target_compile_options(${TEST_TARGET} PRIVATE -UNDEBUG)
+    endif()
 endforeach()
