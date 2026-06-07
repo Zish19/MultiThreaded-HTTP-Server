@@ -30,6 +30,7 @@ set(SOURCES
     src/HttpResponse.cpp
     src/HttpMethod.cpp
     src/Router.cpp
+    src/MiddlewarePipeline.cpp
 )
 
 add_executable(HttpServer ${SOURCES})
@@ -75,6 +76,7 @@ set(TCP_SERVER_TEST_SOURCES
     src/HttpResponse.cpp
     src/HttpMethod.cpp
     src/Router.cpp
+    src/MiddlewarePipeline.cpp
 )
 add_executable(TcpServerTests ${TCP_SERVER_TEST_SOURCES})
 
@@ -120,6 +122,7 @@ set(INTEGRATION_TEST_SOURCES
     src/Logger.cpp
     src/Metrics.cpp
     src/Router.cpp
+    src/MiddlewarePipeline.cpp
 )
 add_executable(IntegrationTests ${INTEGRATION_TEST_SOURCES})
 if(WIN32)
@@ -134,9 +137,23 @@ set(ROUTER_TEST_SOURCES
     src/HttpRequest.cpp
     src/HttpResponse.cpp
     src/HttpMethod.cpp
+    src/MiddlewarePipeline.cpp
 )
 add_executable(RouterTests ${ROUTER_TEST_SOURCES})
 target_link_libraries(RouterTests PRIVATE Threads::Threads)
+
+set(MIDDLEWARE_TEST_SOURCES
+    tests/MiddlewareTests.cpp
+    src/MiddlewarePipeline.cpp
+    src/Router.cpp
+    src/HttpRequest.cpp
+    src/HttpResponse.cpp
+    src/HttpMethod.cpp
+    src/Logger.cpp
+    src/Metrics.cpp
+)
+add_executable(MiddlewareTests ${MIDDLEWARE_TEST_SOURCES})
+target_link_libraries(MiddlewareTests PRIVATE Threads::Threads)
 
 set(BENCHMARK_SOURCES
     benchmarks/BenchmarkRunner.cpp
@@ -145,6 +162,7 @@ set(BENCHMARK_SOURCES
     src/HttpMethod.cpp
     src/HttpResponse.cpp
     src/Router.cpp
+    src/MiddlewarePipeline.cpp
     src/ThreadPool.cpp
     src/Logger.cpp
     src/Metrics.cpp

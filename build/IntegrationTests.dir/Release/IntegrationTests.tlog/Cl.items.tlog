@@ -9,3 +9,4 @@ C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\HttpMethod.cpp;C:\Us
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Logger.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\IntegrationTests.dir\Release\Logger.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Metrics.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\IntegrationTests.dir\Release\Metrics.obj
 C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\Router.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\IntegrationTests.dir\Release\Router.obj
+C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\src\MiddlewarePipeline.cpp;C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\IntegrationTests.dir\Release\MiddlewarePipeline.obj

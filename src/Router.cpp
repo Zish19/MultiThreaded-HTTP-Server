@@ -1,6 +1,10 @@
 #include "Router.h"
 #include <stdexcept>
 
+void Router::use(Middleware mw) {
+    m_pipeline.use(std::move(mw));
+}
+
 void Router::addRoute(HttpMethod method, std::string path, RouteHandler handler) {
     auto& methodMap = m_routes[path];
     if (methodMap.find(method) != methodMap.end()) {
@@ -34,18 +38,22 @@ void Router::options(std::string path, RouteHandler handler) {
 }
 
 HttpResponse Router::dispatch(const HttpRequest& req) const {
-    auto pathIt = m_routes.find(req.getPath());
-    if (pathIt == m_routes.end()) {
-        return HttpResponse::notFound();
-    }
+    RouteHandler finalHandler = [this](const HttpRequest& r) -> HttpResponse {
+        auto pathIt = m_routes.find(r.getPath());
+        if (pathIt == m_routes.end()) {
+            return HttpResponse::notFound();
+        }
 
-    auto methodIt = pathIt->second.find(req.getMethod());
-    if (methodIt == pathIt->second.end()) {
-        return HttpResponse::methodNotAllowed();
-    }
+        auto methodIt = pathIt->second.find(r.getMethod());
+        if (methodIt == pathIt->second.end()) {
+            return HttpResponse::methodNotAllowed();
+        }
+
+        return methodIt->second(r);
+    };
 
     try {
-        return methodIt->second(req);
+        return m_pipeline.execute(req, finalHandler);
     } catch (...) {
         return HttpResponse::internalServerError();
     }

@@ -202,6 +202,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{6C9DB140-5493-34AB-B9CA-9B77AA97D1D4}</Project>
       <Name>IntegrationTests</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\MiddlewareTests.vcxproj">
+      <Project>{09B72770-C140-3181-AFCC-7E48D7D022B6}</Project>
+      <Name>MiddlewareTests</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\Shivam Kumar\Desktop\MultiThreaded_HTTP_Server\build\RouterTests.vcxproj">
       <Project>{583D7166-5084-3092-A82D-CBB28E9FF2EB}</Project>
       <Name>RouterTests</Name>

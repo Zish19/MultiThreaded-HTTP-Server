@@ -32,6 +32,10 @@ void Metrics::addBytesSent(std::uint64_t bytes) {
     m_bytesSent.fetch_add(bytes, std::memory_order_relaxed);
 }
 
+void Metrics::addProcessingTimeMicros(std::uint64_t micros) {
+    m_totalProcessingTimeMicros.fetch_add(micros, std::memory_order_relaxed);
+}
+
 std::uint64_t Metrics::getTotalRequests() const noexcept {
     return m_totalRequests.load(std::memory_order_relaxed);
 }
@@ -58,6 +62,13 @@ double Metrics::getUptimeSeconds() const noexcept {
     return uptime.count();
 }
 
+double Metrics::getAverageRequestTimeMs() const noexcept {
+    std::uint64_t totalReqs = getTotalRequests();
+    if (totalReqs == 0) return 0.0;
+    std::uint64_t totalMicros = m_totalProcessingTimeMicros.load(std::memory_order_relaxed);
+    return static_cast<double>(totalMicros) / 1000.0 / static_cast<double>(totalReqs);
+}
+
 std::string Metrics::toJSON() const {
     std::stringstream ss;
     ss << "{\n"
@@ -66,6 +77,7 @@ std::string Metrics::toJSON() const {
        << "  \"total_connections\": " << getTotalConnections() << ",\n"
        << "  \"bytes_received\": " << getBytesReceived() << ",\n"
        << "  \"bytes_sent\": " << getBytesSent() << ",\n"
+       << "  \"average_request_time_ms\": " << getAverageRequestTimeMs() << ",\n"
        << "  \"uptime_seconds\": " << getUptimeSeconds() << "\n"
        << "}";
     return ss.str();
