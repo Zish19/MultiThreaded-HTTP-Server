@@ -10,31 +10,34 @@
 #include <thread>
 #include <vector>
 
+// Use an isolated test directory so tests don't destroy production assets
+static const std::string TEST_PUBLIC_DIR = "./test_public";
+
 void setupTestFiles() {
-    std::filesystem::create_directories("./public");
+    std::filesystem::create_directories(TEST_PUBLIC_DIR);
     
     // Existing file
-    std::ofstream("public/index.html") << "<h1>Index</h1>";
-    std::ofstream("public/style.css") << "body { color: red; }";
+    std::ofstream(TEST_PUBLIC_DIR + "/index.html") << "<h1>Index</h1>";
+    std::ofstream(TEST_PUBLIC_DIR + "/style.css") << "body { color: red; }";
     
     // Empty file
-    std::ofstream("public/empty.txt");
+    std::ofstream(TEST_PUBLIC_DIR + "/empty.txt");
     
     // Binary file
-    std::ofstream binFile("public/data.bin", std::ios::binary);
+    std::ofstream binFile(TEST_PUBLIC_DIR + "/data.bin", std::ios::binary);
     char binData[] = {0x00, 0x01, 0x02, '\xFF'};
     binFile.write(binData, sizeof(binData));
     binFile.close();
     
     // Large file (~1MB)
-    std::ofstream largeFile("public/large.bin", std::ios::binary);
+    std::ofstream largeFile(TEST_PUBLIC_DIR + "/large.bin", std::ios::binary);
     std::string largeData(1024 * 1024, 'A');
     largeFile.write(largeData.data(), largeData.size());
     largeFile.close();
 }
 
 void teardownTestFiles() {
-    std::filesystem::remove_all("./public");
+    std::filesystem::remove_all(TEST_PUBLIC_DIR);
 }
 
 void testExistingFile() {
@@ -43,7 +46,7 @@ void testExistingFile() {
     req.setPath("/style.css");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody() == "body { color: red; }");
@@ -57,7 +60,7 @@ void testMissingFile() {
     req.setPath("/missing.html");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 404);
     std::cout << "[PASS] testMissingFile\n";
@@ -69,7 +72,7 @@ void testRootPath() {
     req.setPath("/");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody() == "<h1>Index</h1>");
@@ -83,7 +86,7 @@ void testMimeTypeLookup() {
     req.setPath("/data.bin"); // .bin is not in our known list, should fallback
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getHeader("Content-Type").value() == "application/octet-stream");
@@ -97,7 +100,7 @@ void testPathTraversalAttack() {
     req.setPath("/../../CMakeLists.txt");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     // Should be forbidden
     assert(res.getStatusCode() == 403);
@@ -110,7 +113,7 @@ void testBinaryFileServing() {
     req.setPath("/data.bin");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody().size() == 4);
@@ -124,7 +127,7 @@ void testEmptyFile() {
     req.setPath("/empty.txt");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody().empty());
@@ -138,7 +141,7 @@ void testLargeFile() {
     req.setPath("/large.bin");
     
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     HttpResponse res = handler.handle(req);
     assert(res.getStatusCode() == 200);
     assert(res.getBody().size() == 1024 * 1024);
@@ -148,7 +151,7 @@ void testLargeFile() {
 
 void testConcurrentRequests() {
     FileCache cache(64 * 1024 * 1024);
-    StaticFileHandler handler(cache);
+    StaticFileHandler handler(cache, TEST_PUBLIC_DIR);
     
     auto worker = [&]() {
         for(int i = 0; i < 20; ++i) {

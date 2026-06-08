@@ -132,7 +132,7 @@ void runStaticFileBenchmarks() {
     const int iterations = 10000;
 
     auto bench = [&](const std::string& name, FileCache& cache) {
-        StaticFileHandler handler(cache);
+        StaticFileHandler handler(cache, "./public");
         auto start = high_resolution_clock::now();
         for (int i = 0; i < iterations; ++i) {
             HttpResponse res = handler.handle(req);
@@ -150,7 +150,7 @@ void runStaticFileBenchmarks() {
     FileCache warmCache(64 * 1024 * 1024); // 64 MB max size -> cache hit every time
     // pre-warm
     {
-        StaticFileHandler warmup(warmCache);
+        StaticFileHandler warmup(warmCache, "./public");
         warmup.handle(req);
     }
     bench("With Cache (Warm)", warmCache);

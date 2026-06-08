@@ -7,6 +7,7 @@
 #include "FileCache.h"
 #include "StaticFileHandler.h"
 #include <iostream>
+#include <filesystem>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <winsock2.h>
@@ -33,6 +34,25 @@ int main() {
         maxCacheSizeMb = Config::getInstance().getMaxCacheSizeMb();
     }
 
+    // --- Startup Diagnostics ---
+    {
+        auto cwd = std::filesystem::current_path();
+        Logger::getInstance().info("[Startup] CWD: " + cwd.string());
+        
+        std::string publicDirStr = Config::getInstance().getPublicDirectory();
+        Logger::getInstance().info("[Startup] Configured public_directory: " + publicDirStr);
+        
+        auto resolvedPublic = std::filesystem::weakly_canonical(std::filesystem::absolute(publicDirStr));
+        Logger::getInstance().info("[Startup] Resolved public directory: " + resolvedPublic.string());
+        
+        const char* expectedFiles[] = {"index.html", "style.css", "app.js", "favicon.ico"};
+        for (const auto& fname : expectedFiles) {
+            auto fpath = resolvedPublic / fname;
+            bool exists = std::filesystem::exists(fpath);
+            Logger::getInstance().info(std::string("[Startup] ") + fname + ": " + (exists ? "FOUND" : "MISSING") + " (" + fpath.string() + ")");
+        }
+    }
+
     try {
         Router router;
         
@@ -42,7 +62,11 @@ int main() {
         router.use(BuiltInMiddleware::MetricsMiddleware);
         
         FileCache cache(maxCacheSizeMb * 1024 * 1024);
-        StaticFileHandler staticHandler(cache);
+        
+        // Resolve public directory once at startup
+        std::filesystem::path publicDir = std::filesystem::weakly_canonical(
+            std::filesystem::absolute(Config::getInstance().getPublicDirectory()));
+        StaticFileHandler staticHandler(cache, publicDir);
         
         // Static Files
         router.get("/", [&staticHandler](const HttpRequest& req) { return staticHandler.handle(req); });

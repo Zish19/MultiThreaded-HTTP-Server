@@ -13,3 +13,4 @@ compile_commands.json
 *.dll
 *.user
 *.suo
+test_public/

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="High-performance multithreaded HTTP server built with C++20">
+    <title>MultiThreaded HTTP Server</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ MultiThreaded HTTP Server</h1>
+            <p class="subtitle">High-performance C++20 HTTP server with thread pooling</p>
+        </header>
+
+        <main>
+            <section class="status-section">
+                <h2>Server Status</h2>
+                <div class="status-grid">
+                    <div class="status-card" id="health-card">
+                        <div class="status-indicator" id="health-indicator"></div>
+                        <div class="status-info">
+                            <span class="status-label">Health</span>
+                            <span class="status-value" id="health-status">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="status-card" id="uptime-card">
+                        <div class="status-icon">⏱️</div>
+                        <div class="status-info">
+                            <span class="status-label">Page Loaded</span>
+                            <span class="status-value" id="uptime-value">0s</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="metrics-section">
+                <h2>Live Metrics</h2>
+                <div class="metrics-grid" id="metrics-grid">
+                    <div class="metric-card">
+                        <span class="metric-value" id="total-requests">--</span>
+                        <span class="metric-label">Total Requests</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value" id="cache-hits">--</span>
+                        <span class="metric-label">Cache Hits</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value" id="cache-misses">--</span>
+                        <span class="metric-label">Cache Misses</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="metric-value" id="active-connections">--</span>
+                        <span class="metric-label">Active Connections</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="endpoints-section">
+                <h2>Available Endpoints</h2>
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/</span>
+                        <span class="desc">This page</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/health</span>
+                        <span class="desc">Health check</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/metrics</span>
+                        <span class="desc">Server metrics (JSON)</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/about</span>
+                        <span class="desc">About this server</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Built with C++20 &middot; Thread Pool Architecture &middot; LRU File Cache</p>
+        </footer>
+    </div>
+    <script src="/app.js"></script>
+</body>
+</html>
