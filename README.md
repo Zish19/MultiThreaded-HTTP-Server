@@ -26,7 +26,6 @@
 - [Project Scale](#project-scale)
 - [Engineering Highlights](#engineering-highlights)
 - [Architecture](#architecture)
-- [Internal Components](#internal-components)
 - [Design Decisions](#design-decisions)
 - [Performance](#performance)
 - [Security](#security)
@@ -60,8 +59,6 @@ Whether serving dynamic API endpoints through a robust middleware pipeline or st
 | Keep-Alive Connections | Complete |
 | Docker Deployment | Complete |
 | CI/CD Pipeline | Complete |
-| HTTP/2 Support | Planned |
-| TLS/HTTPS | Planned |
 
 ---
 
@@ -90,10 +87,6 @@ Whether serving dynamic API endpoints through a robust middleware pipeline or st
 - **Keep-Alive Connections** -- Connection multiplexing to drastically reduce TCP handshake latency.
 - **Metrics Endpoint** -- Live atomic counters tracking cache hits, connection multiplexing, and latencies.
 
-<p align="center">
-  <img src="assets/threadpool.png" width="80%" alt="ThreadPool Architecture Diagram">
-</p>
-
 ---
 
 ## Architecture
@@ -116,9 +109,6 @@ graph TD
     I -->|Socket send| A
 ```
 
-<p align="center">
-  <img src="assets/architecture.png" width="80%" alt="Server Architecture Overview">
-</p>
 
 ### Advanced Request Lifecycle
 
@@ -149,36 +139,6 @@ sequenceDiagram
     Socket->>Client: Transmit Data
 ```
 
----
-
-## Internal Components
-
-### Request Flow
-
-<p align="center">
-  <img src="assets/demo/request-flow.gif" width="90%" alt="Request Flow Animation">
-</p>
-
-### Static File Serving
-
-<p align="center">
-  <img src="assets/demo/static-files.gif" width="90%" alt="Static File Serving Animation">
-</p>
-
-### Router Dispatch
-
-<p align="center">
-  <img src="assets/router-flow.png" width="80%" alt="Router Flow Diagram">
-</p>
-
-### LRU Cache Flow
-
-<p align="center">
-  <img src="assets/cache-flow.png" width="80%" alt="LRU Cache Flow Diagram">
-</p>
-
----
-
 ## Design Decisions
 
 ### Why a ThreadPool?
@@ -197,12 +157,6 @@ Static assets are often requested repeatedly. Serving from memory avoids filesys
 
 ## Performance
 
-### Server Startup and Metrics Dashboard
-
-| Server Startup | Live Metrics |
-| :---: | :---: |
-| <img src="assets/demo/server-startup.gif" width="100%" alt="Server Startup"> | <img src="assets/demo/metrics.gif" width="100%" alt="Metrics Dashboard"> |
-
 ### Benchmark Results
 
 Tested on a modern 8-core CPU with a 10,000 connection burst test.
@@ -215,18 +169,12 @@ Tested on a modern 8-core CPU with a 10,000 connection burst test.
 | Static Cache (Cold) | 10,000 reqs | 2826 ms | ~3,538 req/s |
 | Static Cache (Warm) | 10,000 reqs | 2084 ms | ~4,798 req/s |
 
-### Benchmark Visualizations
-
-| Parser Throughput | Cache Performance | Keep-Alive Performance |
-| :---: | :---: | :---: |
-| <img src="assets/benchmarks/parser-throughput.png" width="100%" alt="Parser Throughput"> | <img src="assets/benchmarks/cache-performance.png" width="100%" alt="Cache Performance"> | <img src="assets/benchmarks/keepalive-performance.png" width="100%" alt="Keep-Alive Performance"> |
-
 ### Test Environment
 
 | Component | Value |
 | :--- | :--- |
-| CPU | Ryzen 7 5800H |
-| RAM | 16 GB |
+| CPU | Ryzen 7 7435HS |
+| RAM | 24 GB |
 | OS | Windows 11 |
 | Build | Release (-O3) |
 
@@ -359,11 +307,6 @@ For engineering managers reviewing this codebase, this project demonstrates dire
 | Systems Design | Modular, decoupled components following SOLID principles |
 | Production Infrastructure | Dockerization, CMake build systems, and GitHub Actions CI |
 
-### Application Screenshots
-
-| Homepage | Cache Dashboard | Metrics |
-| :---: | :---: | :---: |
-| <img src="assets/screenshots/homepage.png" width="100%" alt="Homepage"> | <img src="assets/screenshots/cache.png" width="100%" alt="Cache Dashboard"> | <img src="assets/screenshots/metrics.png" width="100%" alt="Metrics"> |
 
 ---
 
