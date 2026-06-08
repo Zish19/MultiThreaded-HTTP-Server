@@ -91,10 +91,6 @@ Whether it's serving dynamic API endpoints through a robust middleware pipeline 
 
 ## Architecture
 
-<p align="center">
-  <img src="assets/architecture.png" width="100%">
-</p>
-
 The server handles asynchronous connections by tightly coupling a custom `TcpServer` with a `ThreadPool`.
 
 ### High-Level Components
@@ -147,17 +143,13 @@ sequenceDiagram
 
 ## Internal Components
 
-### Thread Pool
+### Request Flow
 
-<img src="assets/threadpool.png" width="100%">
+<img src="assets/demo/request-flow.gif" width="100%">
 
-### Router Dispatch
+### Static Files Serving
 
-<img src="assets/router-flow.png" width="100%">
-
-### LRU Cache Flow
-
-<img src="assets/cache-flow.png" width="100%">
+<img src="assets/demo/static-files.gif" width="100%">
 
 ---
 
@@ -186,9 +178,9 @@ Serving from memory avoids filesystem traversal and disk I/O.
 
 ## Runtime
 
-| Home | Metrics |
+| Server Startup | Metrics |
 |--------|--------|
-| ![](assets/screenshots/homepage.png) | ![](assets/screenshots/metrics.png) |
+| ![](assets/demo/server-startup.gif) | ![](assets/demo/metrics.gif) |
 
 ---
 
@@ -207,10 +199,6 @@ This server is designed to squeeze maximum performance out of native sockets usi
 ---
 
 ## Performance Results
-
-<p align="center">
-  <img src="assets/benchmarks/cache-performance.png" width="90%">
-</p>
 
 ### Benchmarks
 
