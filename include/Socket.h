@@ -45,6 +45,7 @@ public:
     std::size_t sendAll(const std::string& data);
     std::string receive(std::size_t maxBytes = 4096);
     
+    void shutdown() noexcept;
     void close() noexcept;
     bool valid() const noexcept;
     SocketHandle handle() const noexcept;

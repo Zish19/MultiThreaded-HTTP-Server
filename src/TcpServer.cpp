@@ -39,7 +39,8 @@ void TcpServer::start() {
 
 void TcpServer::stop() noexcept {
     if (!m_stop.exchange(true, std::memory_order_acq_rel)) {
-        // Closing the server socket will interrupt any blocking accept() call
+        // Shutting down the socket will unblock accept() on Linux
+        m_serverSocket.shutdown();
         m_serverSocket.close();
         
         if (m_acceptThread.joinable()) {

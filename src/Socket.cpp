@@ -152,6 +152,16 @@ std::string Socket::receive(std::size_t maxBytes) {
     return std::string(buffer.data(), static_cast<std::size_t>(bytesReceived));
 }
 
+void Socket::shutdown() noexcept {
+    if (m_handle != InvalidHandle) {
+#if defined(_WIN32) || defined(_WIN64)
+        ::shutdown(m_handle, SD_BOTH);
+#else
+        ::shutdown(m_handle, SHUT_RDWR);
+#endif
+    }
+}
+
 void Socket::close() noexcept {
     if (m_handle != InvalidHandle) {
 #if defined(_WIN32) || defined(_WIN64)
